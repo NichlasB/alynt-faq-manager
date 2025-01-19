@@ -1,0 +1,142 @@
+:root {
+    --alynt-faq-icon-color: currentColor;
+    --alynt-faq-border-color: #ddd;
+    --alynt-faq-transition: all 0.3s ease;
+}
+
+.screen-reader-text {
+    border: 0;
+    clip: rect(1px, 1px, 1px, 1px);
+    clip-path: inset(50%);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+    word-wrap: normal !important;
+}
+
+.alynt-faq-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.alynt-faq-collection {
+    margin-bottom: 2rem;
+}
+
+.collection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.collection-title {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.collection-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.collection-controls button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.collection-controls svg {
+    width: 1rem;
+    height: 1rem;
+    fill: var(--alynt-faq-icon-color);
+}
+
+.faq-item {
+    margin-bottom: 1rem;
+    border: 1px solid var(--alynt-faq-border-color);
+    border-radius: 4px;
+}
+
+.faq-question {
+    width: 100%;
+    text-align: left;
+    padding: 1rem;
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.faq-question svg {
+    width: 1rem;
+    height: 1rem;
+    fill: var(--alynt-faq-icon-color);
+    transition: var(--alynt-faq-transition);
+    flex-shrink: 0;
+}
+
+.faq-question .icon-minus {
+    display: none;
+}
+
+.faq-question[aria-expanded="true"] .icon-plus {
+    display: none;
+}
+
+.faq-question[aria-expanded="true"] .icon-minus {
+    display: block;
+}
+
+.faq-answer {
+    padding: 0 1rem 1rem 3rem;
+}
+
+.answer-content {
+    margin-bottom: 1rem;
+}
+
+.view-full-post {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.view-full-post svg {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
+}
+
+/* Columns Layout */
+@media (min-width: 1000px) {
+    .alynt-faq-container.columns-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+}
+
+/* Animation */
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.faq-answer[aria-hidden="false"] {
+    max-height: 1000px; /* Adjust based on content */
+    transition: max-height 0.5s ease-in;
+}
