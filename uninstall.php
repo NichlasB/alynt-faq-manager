@@ -27,8 +27,15 @@ if (!empty($terms) && !is_wp_error($terms)) {
     }
 }
 
-// Delete plugin options
-delete_option('alynt_faq_version');
+// Delete all plugin options
+$options_to_delete = array(
+    'alynt_faq_version',
+    'alynt_faq_custom_css'
+);
+
+foreach ($options_to_delete as $option) {
+    delete_option($option);
+}
 
 // Clear any cached data
 wp_cache_flush();

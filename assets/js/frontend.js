@@ -1,4 +1,5 @@
 jQuery(document).ready(function($) {
+    $('.alynt-faq-container').addClass('is-loaded');
     const FAQ_SELECTORS = {
         container: '.alynt-faq-container',
         question: '.faq-question',
@@ -11,17 +12,17 @@ jQuery(document).ready(function($) {
     $(document).on('click', FAQ_SELECTORS.question, function(e) {
         e.preventDefault();
         const $question = $(this);
-        const $answer = $question.next(FAQ_SELECTORS.answer);
+        const $answer = $question.closest('.faq-header').siblings('.faq-answer');
         const $container = $question.closest(FAQ_SELECTORS.container);
         const closeOpened = $container.hasClass('close-opened-yes');
 
         if (closeOpened) {
             const $otherQuestions = $container
-                .find(FAQ_SELECTORS.question)
-                .not($question);
+            .find(FAQ_SELECTORS.question)
+            .not($question);
             const $otherAnswers = $container
-                .find(FAQ_SELECTORS.answer)
-                .not($answer);
+            .find(FAQ_SELECTORS.answer)
+            .not($answer);
 
             $otherQuestions.attr('aria-expanded', 'false');
             $otherAnswers.attr('aria-hidden', 'true').prop('hidden', true);
@@ -38,8 +39,8 @@ jQuery(document).ready(function($) {
         const $collection = $(this).closest('.alynt-faq-collection');
         $collection.find(FAQ_SELECTORS.question).attr('aria-expanded', 'true');
         $collection.find(FAQ_SELECTORS.answer)
-            .attr('aria-hidden', 'false')
-            .prop('hidden', false);
+        .attr('aria-hidden', 'false')
+        .prop('hidden', false);
     });
 
     // Handle collapse all button
@@ -48,8 +49,8 @@ jQuery(document).ready(function($) {
         const $collection = $(this).closest('.alynt-faq-collection');
         $collection.find(FAQ_SELECTORS.question).attr('aria-expanded', 'false');
         $collection.find(FAQ_SELECTORS.answer)
-            .attr('aria-hidden', 'true')
-            .prop('hidden', true);
+        .attr('aria-hidden', 'true')
+        .prop('hidden', true);
     });
 
     // Keyboard navigation
@@ -79,6 +80,6 @@ jQuery(document).ready(function($) {
                 e.preventDefault();
                 $questions.last().focus();
                 break;
-        }
-    });
+            }
+        });
 });

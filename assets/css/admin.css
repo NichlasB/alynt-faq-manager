@@ -1,70 +1,165 @@
-.alynt-faq-reorder {
+/* Common Styles */
+.alynt-faq-reorder,
+.alynt-faq-css-container {
     padding: 20px 0;
 }
 
+/* Collection Selector Styles */
 .collection-selector {
     margin: 20px 0;
 }
 
 #collection-dropdown {
     min-width: 200px;
-    padding: 5px;
+    padding: 8px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 14px;
 }
 
+/* Sortable List Styles */
 .sortable-list {
     margin: 20px 0;
     padding: 0;
     list-style: none;
+    max-width: 800px;
 }
 
 .faq-item {
     display: flex;
     align-items: center;
-    padding: 10px;
-    margin-bottom: 5px;
+    padding: 12px 15px;
+    margin-bottom: 8px;
     background: #fff;
     border: 1px solid #ddd;
+    border-radius: 4px;
     cursor: move;
+    transition: all 0.2s ease;
 }
 
 .faq-item:hover {
     background: #f9f9f9;
+    border-color: #c3c4c7;
 }
 
 .faq-handle {
-    margin-right: 10px;
-    color: #999;
+    margin-right: 15px;
+    color: #787c82;
     cursor: move;
+    font-size: 20px;
 }
 
 .faq-title {
     flex-grow: 1;
+    font-size: 14px;
 }
 
 .faq-order {
-    margin-left: 10px;
+    margin-left: 15px;
     color: #666;
+    font-size: 12px;
 }
 
 .ui-sortable-helper {
     background: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: scale(1.02);
 }
 
 .ui-sortable-placeholder {
     visibility: visible !important;
-    background: #f0f0f0;
-    border: 1px dashed #ccc;
+    background: #f8f9fa;
+    border: 2px dashed #c3c4c7;
+    border-radius: 4px;
 }
 
+/* Custom CSS Editor Styles */
+.css-documentation {
+    background: #fff;
+    padding: 25px;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    margin-bottom: 25px;
+}
+
+.css-documentation h3 {
+    margin-top: 0;
+    color: #1d2327;
+}
+
+.css-documentation ul {
+    margin-bottom: 25px;
+}
+
+.css-documentation li {
+    margin-bottom: 8px;
+}
+
+.css-documentation code {
+    background: #f6f7f7;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.css-documentation pre {
+    background: #f6f7f7;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 15px 0;
+}
+
+.css-editor textarea {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 15px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+/* Feedback Message Styles */
 #save-feedback {
-    margin-top: 15px;
+    margin: 15px 0;
+    padding: 12px 15px;
+    border-radius: 4px;
 }
 
 .notice-success {
-    border-left-color: #46b450;
+    border-left: 4px solid #00a32a;
+    background: #fff;
 }
 
 .notice-error {
-    border-left-color: #dc3232;
+    border-left: 4px solid #d63638;
+    background: #fff;
+}
+
+/* Button Styles */
+#reset-css {
+    margin-left: 10px;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 782px) {
+    .sortable-list {
+        margin: 15px 0;
+    }
+
+    .faq-item {
+        padding: 10px;
+    }
+
+    .css-documentation {
+        padding: 15px;
+    }
+
+    .css-editor textarea {
+        font-size: 16px;
+    }
 }

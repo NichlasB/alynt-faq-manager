@@ -43,6 +43,8 @@ function alynt_faq_shortcode($atts) {
         'close-opened-' . $close_opened
     );
 
+    echo '<style>.alynt-faq-container{opacity:0}</style>';
+
     echo '<div class="' . esc_attr(implode(' ', $container_classes)) . '" id="faq-content">';
 
     // Get collections
@@ -91,16 +93,16 @@ function alynt_faq_render_collection($collection, $orderby) {
     // Set ordering
     switch ($orderby) {
         case 'date':
-            $args['orderby'] = 'date';
-            $args['order'] = 'DESC';
-            break;
+        $args['orderby'] = 'date';
+        $args['order'] = 'DESC';
+        break;
         case 'abc':
-            $args['orderby'] = 'title';
-            $args['order'] = 'ASC';
-            break;
+        $args['orderby'] = 'title';
+        $args['order'] = 'ASC';
+        break;
         default: // menu_order
-            $args['orderby'] = 'menu_order';
-            $args['order'] = 'ASC';
+        $args['orderby'] = 'menu_order';
+        $args['order'] = 'ASC';
     }
 
     $faqs = new WP_Query($args);
@@ -111,28 +113,20 @@ function alynt_faq_render_collection($collection, $orderby) {
 
     $output = '<div class="alynt-faq-collection">';
     
-    // Collection header
+   // Collection header
     $output .= sprintf(
         '<div class="collection-header">
-            <h2 class="collection-title">%s</h2>
-            <div class="collection-controls">
-                <button class="expand-all" aria-expanded="false">
-                    <span class="screen-reader-text">Expand all items in %s</span>
-                    <svg class="expand-icon" aria-hidden="true" viewBox="0 0 24 24">
-                        <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>
-                    </svg>
-                </button>
-                <button class="collapse-all" aria-expanded="true">
-                    <span class="screen-reader-text">Collapse all items in %s</span>
-                    <svg class="collapse-icon" aria-hidden="true" viewBox="0 0 24 24">
-                        <path d="M0 10h24v4h-24z"/>
-                    </svg>
-                </button>
-            </div>
+        <h2 class="collection-title">%s</h2>
+        <div class="collection-controls">
+        <button class="expand-all" aria-expanded="false">
+        Expand All
+        </button>
+        <button class="collapse-all" aria-expanded="true">
+        Collapse All
+        </button>
+        </div>
         </div>',
-        esc_html($collection->name),
-        esc_attr($collection->name),
-        esc_attr($collection->name)
+        esc_html($collection->name)
     );
 
     // FAQ items
@@ -142,26 +136,29 @@ function alynt_faq_render_collection($collection, $orderby) {
         $faqs->the_post();
         $post_link = get_permalink();
         
+        // In the FAQ item output section, modify the structure:
         $output .= sprintf(
             '<div class="faq-item">
-                <button class="faq-question" aria-expanded="false" aria-controls="faq-%1$s">
-                    <svg class="icon-plus" aria-hidden="true" viewBox="0 0 24 24">
-                        <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>
-                    </svg>
-                    <svg class="icon-minus" aria-hidden="true" viewBox="0 0 24 24">
-                        <path d="M0 10h24v4h-24z"/>
-                    </svg>
-                    <span class="question-text">%2$s</span>
-                </button>
-                <div class="faq-answer" id="faq-%1$s" hidden>
-                    <div class="answer-content">%3$s</div>
-                    <a href="%4$s" class="view-full-post" aria-label="View full post for: %5$s">
-                        <svg class="icon-external" aria-hidden="true" viewBox="0 0 24 24">
-                            <path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
-                        </svg>
-                        View Full Post
-                    </a>
-                </div>
+            <div class="faq-header">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq-%1$s">
+            <svg class="icon-plus" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>
+            </svg>
+            <svg class="icon-minus" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M0 10h24v4h-24z"/>
+            </svg>
+            <span class="question-text">%2$s</span>
+            </button>
+            <a href="%4$s" class="view-full-post" target="_blank" aria-label="View FAQ page for: %5$s">
+            <svg class="icon-external" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+            </svg>
+            <span>New Tab</span>
+            </a>
+            </div>
+            <div class="faq-answer" id="faq-%1$s" hidden>
+            <div class="answer-content">%3$s</div>
+            </div>
             </div>',
             esc_attr(get_the_ID()),
             esc_html(get_the_title()),

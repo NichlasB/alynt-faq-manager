@@ -29,6 +29,7 @@ if (!defined('ALYNT_FAQ_LOADED')) {
     require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/admin-page.php';
     require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/shortcodes.php';
     require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/templates.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend.php';
 
     // Register activation/deactivation hooks
     register_activation_hook(__FILE__, 'alynt_faq_activate');
