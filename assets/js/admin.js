@@ -50,27 +50,62 @@ jQuery(document).ready(function($) {
     // Handle Custom CSS form submission
     $('#custom-css-form').on('submit', function(e) {
         e.preventDefault();
+        console.log('Form submitted');
+
+        var $form = $(this);
+        var $textarea = $('#alynt_faq_custom_css');
+        var $nonceField = $('#alynt_faq_custom_css_nonce');
         
-        var customCSS = $('#alynt_faq_custom_css').val();
-        var nonce = $('#alynt_faq_custom_css_nonce').val();
+        console.log('Form elements found:', {
+            form: $form.length > 0,
+            textarea: $textarea.length > 0,
+            nonce: $nonceField.length > 0
+        });
+
+        var customCSS = $textarea.val();
+        var nonce = $nonceField.val();
+
+        console.log('Values retrieved:', {
+            css: customCSS ? 'CSS content present' : 'No CSS content',
+            nonce: nonce ? 'Nonce present' : 'No nonce'
+        });
+
+        var data = {
+            action: 'alynt_faq_save_custom_css',
+            css: customCSS,
+            nonce: nonce
+        };
+
+        console.log('Sending data:', data);
 
         $.ajax({
             url: alyntFaqAdmin.ajaxurl,
             type: 'POST',
-            data: {
-                action: 'alynt_faq_save_custom_css',
-                custom_css: customCSS,
-                nonce: nonce
+            data: data,
+            beforeSend: function() {
+            // Show loading state
+                $form.find('button, input[type="submit"]').prop('disabled', true);
+                showFeedback('Saving CSS...', 'info');
             },
             success: function(response) {
+                console.log('Response:', response);
                 if (response.success) {
-                    showFeedback('Custom CSS saved successfully.', 'success');
+                    showFeedback(response.data.message || alyntFaqAdmin.messages.cssSaved, 'success');
                 } else {
-                    showFeedback('Error saving custom CSS.', 'error');
+                    showFeedback(response.data.message || alyntFaqAdmin.messages.cssError, 'error');
                 }
             },
-            error: function() {
-                showFeedback('Error saving custom CSS.', 'error');
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('AJAX error:', {
+                    status: textStatus,
+                    error: errorThrown,
+                    response: jqXHR.responseText
+                });
+                showFeedback(alyntFaqAdmin.messages.cssError, 'error');
+            },
+            complete: function() {
+            // Re-enable buttons
+                $form.find('button, input[type="submit"]').prop('disabled', false);
             }
         });
     });

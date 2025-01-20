@@ -145,6 +145,29 @@
     margin-left: 10px;
 }
 
+.alynt-faq-css-container {
+    margin-top: 20px;
+}
+.css-documentation {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    margin-bottom: 20px;
+}
+.css-documentation pre {
+    background: #f6f7f7;
+    padding: 15px;
+    border: 1px solid #ddd;
+    white-space: pre-wrap;
+}
+.css-documentation code {
+    background: #f6f7f7;
+    padding: 3px 5px;
+}
+#reset-css {
+    margin-left: 10px;
+}
+
 /* Responsive Adjustments */
 @media screen and (max-width: 782px) {
     .sortable-list {

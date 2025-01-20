@@ -63,11 +63,14 @@ function alynt_faq_admin_scripts($hook) {
     wp_localize_script('alynt-faq-admin', 'alyntFaqAdmin', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('alynt_faq_reorder'),
+        'cssNonce' => wp_create_nonce('alynt_faq_custom_css'),
         'messages' => array(
-            'orderSaved' => 'FAQ order has been updated.',
-            'error' => 'An error occurred while saving the order.'
-        )
-    ));
+        'orderSaved' => __('FAQ order has been updated.', 'alynt-faq'),
+        'error' => __('An error occurred while saving the order.', 'alynt-faq'),
+        'cssSaved' => __('Custom CSS saved successfully.', 'alynt-faq'),
+        'cssError' => __('Error saving custom CSS.', 'alynt-faq')
+    )
+));
 }
 
 // Render the reorder page
@@ -130,33 +133,84 @@ add_action('admin_menu', 'alynt_faq_add_custom_css_page');
 add_action('wp_ajax_alynt_faq_save_custom_css', 'alynt_faq_save_custom_css');
 
 function alynt_faq_save_custom_css() {
+    // Debug output
+    error_log('Custom CSS save attempt started');
+    
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'alynt_faq_custom_css')) {
+    if (!isset($_POST['nonce'])) {
+        error_log('Nonce not set in request');
         wp_send_json_error(array(
-            'message' => __('Security check failed.', 'alynt-faq')
+            'message' => __('Security check failed: nonce missing.', 'alynt-faq')
+        ));
+    }
+
+    if (!wp_verify_nonce($_POST['nonce'], 'alynt_faq_custom_css')) {
+        error_log('Nonce verification failed');
+        wp_send_json_error(array(
+            'message' => __('Security check failed: invalid nonce.', 'alynt-faq')
         ));
     }
 
     // Check permissions
     if (!current_user_can('edit_theme_options')) {
+        error_log('Permission check failed for user');
         wp_send_json_error(array(
             'message' => __('You do not have permission to edit custom CSS.', 'alynt-faq')
         ));
     }
 
     // Validate and sanitize CSS
-    $custom_css = isset($_POST['css']) ? wp_strip_all_tags($_POST['css']) : '';
-    
-    // Basic CSS validation
-    if (!empty($custom_css) && strpos($custom_css, '{') === false) {
+    if (!isset($_POST['css'])) {
+        error_log('CSS parameter not found in request');
         wp_send_json_error(array(
-            'message' => __('Invalid CSS format.', 'alynt-faq')
+            'message' => __('No CSS content provided.', 'alynt-faq')
         ));
     }
 
-    // Save the CSS
-    update_option('alynt_faq_custom_css', $custom_css);
+    $custom_css = wp_strip_all_tags($_POST['css']);
+    error_log('Received CSS content length: ' . strlen($custom_css));
+    
+    // Basic CSS validation
+    if (!empty($custom_css)) {
+        // Check for basic CSS syntax
+        if (strpos($custom_css, '{') === false || strpos($custom_css, '}') === false) {
+            error_log('Invalid CSS format - missing brackets');
+            wp_send_json_error(array(
+                'message' => __('Invalid CSS format. CSS must contain valid rules with { } brackets.', 'alynt-faq')
+            ));
+        }
 
+        // Check for potentially harmful content
+        $harmful_patterns = array(
+            'expression',
+            'javascript:',
+            'behavior:',
+            '-moz-binding',
+            '@import',
+            'data:',
+        );
+
+        foreach ($harmful_patterns as $pattern) {
+            if (stripos($custom_css, $pattern) !== false) {
+                error_log('Harmful CSS pattern detected: ' . $pattern);
+                wp_send_json_error(array(
+                    'message' => __('Invalid CSS content detected.', 'alynt-faq')
+                ));
+            }
+        }
+    }
+
+    // Save the CSS
+    $result = update_option('alynt_faq_custom_css', $custom_css);
+    
+    if ($result === false) {
+        error_log('Failed to save CSS to options table');
+        wp_send_json_error(array(
+            'message' => __('Failed to save CSS. Please try again.', 'alynt-faq')
+        ));
+    }
+
+    error_log('Custom CSS saved successfully');
     wp_send_json_success(array(
         'message' => __('Custom CSS saved successfully.', 'alynt-faq')
     ));
@@ -171,6 +225,7 @@ function alynt_faq_render_custom_css_page() {
         
         <div class="alynt-faq-css-container">
             <form method="post" action="" id="custom-css-form">
+                <div id="save-feedback" class="notice" style="display: none;"></div>
                 <?php wp_nonce_field('alynt_faq_custom_css', 'alynt_faq_custom_css_nonce'); ?>
                 
                 <div class="css-documentation">
@@ -205,37 +260,14 @@ function alynt_faq_render_custom_css_page() {
                         style="font-family: monospace;"><?php echo esc_textarea($custom_css); ?></textarea>
                     </div>
 
-                    <?php submit_button('Save Custom CSS'); ?>
-
-                    <button type="button" class="button" id="reset-css">Reset to Default</button>
+                    <p class="submit">
+                        <?php submit_button('Save Custom CSS', 'primary', 'submit', false); ?>
+                        <button type="button" class="button" id="reset-css">Reset to Default</button>
+                    </p>
                 </form>
             </div>
         </div>
 
-        <style>
-            .alynt-faq-css-container {
-                margin-top: 20px;
-            }
-            .css-documentation {
-                background: #fff;
-                padding: 20px;
-                border: 1px solid #ccd0d4;
-                margin-bottom: 20px;
-            }
-            .css-documentation pre {
-                background: #f6f7f7;
-                padding: 15px;
-                border: 1px solid #ddd;
-                white-space: pre-wrap;
-            }
-            .css-documentation code {
-                background: #f6f7f7;
-                padding: 3px 5px;
-            }
-            #reset-css {
-                margin-left: 10px;
-            }
-        </style>
         <?php
     }
 
