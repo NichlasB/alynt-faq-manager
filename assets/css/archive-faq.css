@@ -1,0 +1,185 @@
+/* FAQ Archive Layout */
+.afaq-wrapper {
+    background-color: inherit;
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+.afaq-container {
+    margin: 0 auto;
+    max-width: 960px;
+    position: relative;
+}
+
+/* Archive Header */
+.afaq-archive-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding: 0 20px;
+}
+
+.afaq-archive-title {
+    color: inherit;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 auto;
+    padding-top: 30px;
+    position: relative;
+}
+
+.afaq-archive-title::before {
+    background: radial-gradient(circle at 10px -5px, transparent 12px, #1a210f 13px, transparent 14px) repeat-x;
+    background-size: 20px 20px;
+    content: "";
+    height: 15px;
+    left: 0;
+    margin-left: auto;
+    margin-right: auto;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 200px;
+}
+
+/* Grid Layout */
+.afaq-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+    padding: 0 20px;
+}
+
+/* Card Styles */
+.afaq-card {
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.afaq-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+}
+
+.afaq-card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+    color: inherit;
+}
+
+.afaq-card-excerpt {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 10px 0;
+    opacity: 0.85;
+}
+
+.afaq-card-meta {
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+    gap: 5px;
+    opacity: 0.8;
+}
+
+/* Pagination */
+.afaq-pagination {
+    margin-top: 40px;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.afaq-pagination-numbers {
+    display: inline-flex;
+    gap: 10px;
+}
+
+.afaq-pagination-numbers a,
+.afaq-pagination-numbers span {
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    display: inline-block;
+    font-size: 1rem;
+    min-width: 40px;
+    padding: 8px 12px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.afaq-pagination-numbers a:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.afaq-pagination-numbers span.current {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* No Results */
+.afaq-no-results {
+    grid-column: 1 / -1;
+    padding: 40px;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+    .afaq-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+    
+    .afaq-archive-title {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .afaq-wrapper {
+        padding: 40px 10px;
+    }
+
+    .afaq-archive-title {
+        font-size: 2rem;
+    }
+
+    .afaq-card-excerpt {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .afaq-archive-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .afaq-archive-title {
+        font-size: 1.8rem;
+    }
+
+    .afaq-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 0 10px;
+    }
+
+    .afaq-pagination-numbers {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

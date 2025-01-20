@@ -125,6 +125,7 @@ add_action('admin_menu', 'alynt_faq_add_custom_css_page');
 
 // Add AJAX handler for custom CSS
 add_action('wp_ajax_alynt_faq_save_custom_css', 'alynt_faq_save_custom_css');
+
 function alynt_faq_save_custom_css() {
     if (!check_ajax_referer('alynt_faq_custom_css', 'nonce', false)) {
         wp_send_json_error('Invalid nonce');
@@ -134,9 +135,18 @@ function alynt_faq_save_custom_css() {
         wp_send_json_error('Insufficient permissions');
     }
 
-    $custom_css = isset($_POST['custom_css']) ? wp_strip_all_tags($_POST['custom_css']) : '';
-    update_option('alynt_faq_custom_css', $custom_css);
+    $custom_css = isset($_POST['custom_css']) ? $_POST['custom_css'] : '';
     
+    // Custom sanitization that preserves CSS syntax
+    $custom_css = str_replace(array('javascript:', 'expression('), '', $custom_css);
+    
+    // Remove any potentially harmful content
+    $custom_css = preg_replace('@<(script|style|iframe|object|embed|link)[^>]*?>.*?</\\1>@si', '', $custom_css);
+    
+    // Remove HTML tags but preserve CSS content
+    $custom_css = strip_tags($custom_css);
+
+    update_option('alynt_faq_custom_css', $custom_css);
     wp_send_json_success('Custom CSS saved successfully');
 }
 

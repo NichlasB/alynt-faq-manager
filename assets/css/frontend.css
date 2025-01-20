@@ -21,7 +21,6 @@
     max-width: 1200px;
     margin: 2rem auto;
     opacity: 0;
-    padding: 0 1rem;
     transition: opacity 0.3s ease;
 }
 
@@ -123,7 +122,7 @@
 }
 
 .faq-answer {
-    padding: 0 1rem 1rem 3rem;
+    padding: 0 1rem 1rem;
 }
 
 .answer-content {
@@ -266,6 +265,6 @@
     }
 
     .faq-answer {
-        padding: 0 0.75rem 0.75rem 2.5rem;
+        padding: 0 0.75rem 0.75rem;
     }
 }

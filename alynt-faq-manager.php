@@ -86,6 +86,21 @@ if (!defined('ALYNT_FAQ_LOADED')) {
         }
     }
 
+    /**
+ * Enqueue archive styles only on FAQ archive page
+ */
+    function alynt_faq_enqueue_archive_styles() {
+        if (is_post_type_archive('alynt_faq')) {
+            wp_enqueue_style(
+                'alynt-faq-archive',
+                ALYNT_FAQ_PLUGIN_URL . 'assets/css/archive-faq.css',
+                array(),
+                ALYNT_FAQ_VERSION
+            );
+        }
+    }
+    add_action('wp_enqueue_scripts', 'alynt_faq_enqueue_archive_styles');
+
     // Initialize plugin
     function alynt_faq_init() {
         alynt_faq_create_plugin_structure();
