@@ -8,8 +8,7 @@ function alynt_faq_output_custom_css() {
     $custom_css = get_option('alynt_faq_custom_css');
     if (!empty($custom_css)) {
         echo "<style type='text/css'>\n";
-        // Output the CSS directly without additional sanitization
-        echo $custom_css . "\n";
+        echo wp_strip_all_tags($custom_css) . "\n";
         echo "</style>";
     }
 }

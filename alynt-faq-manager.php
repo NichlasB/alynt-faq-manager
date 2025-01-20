@@ -1,19 +1,38 @@
 <?php
 /**
  * Plugin Name: Alynt FAQ Manager
- * Plugin URI: 
+ * Plugin URI: https://github.com/NichlasB/alynt-faq-manager
  * Description: A custom FAQ management system with collections, ordering, and responsive accordion display
  * Version: 1.0.0
- * Author: 
- * Author URI: 
- * License: GPL v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Author: Alynt
+ * Author URI: https://alynt.com
+ * Text Domain: alynt-faq
+ * Domain Path: /languages
+ * Requires at least: 5.0
+ * Requires PHP: 7.2
  */
 
 // Prevent direct file access
 if (!defined('ABSPATH')) {
     exit;
 }
+
+/**
+ * Check and update plugin version
+ */
+function alynt_faq_check_version() {
+    $current_version = get_option('alynt_faq_version', '0');
+    if (version_compare($current_version, ALYNT_FAQ_VERSION, '<')) {
+        // Run upgrade routine if needed
+        
+        // Update version in database
+        update_option('alynt_faq_version', ALYNT_FAQ_VERSION);
+        
+        // Clear any caches
+        wp_cache_flush();
+    }
+}
+add_action('plugins_loaded', 'alynt_faq_check_version');
 
 // Ensure no output has been sent before plugin initialization
 if (!defined('ALYNT_FAQ_LOADED')) {

@@ -49,18 +49,27 @@ function alynt_faq_shortcode($atts) {
 
     // Get collections
     $collection_terms = array();
-    if (!empty($atts['collection'])) {
-        $collection_slugs = array_map('trim', explode(',', $atts['collection']));
-        $collection_terms = get_terms(array(
-            'taxonomy' => 'alynt_faq_collection',
-            'slug' => $collection_slugs,
-            'hide_empty' => true
-        ));
-    } else {
-        $collection_terms = get_terms(array(
-            'taxonomy' => 'alynt_faq_collection',
-            'hide_empty' => true
-        ));
+    $cache_key = 'alynt_faq_collections_' . md5(serialize($atts));
+    $collection_terms = wp_cache_get($cache_key);
+    
+    if (false === $collection_terms) {
+        if (!empty($atts['collection'])) {
+            $collection_slugs = array_map('trim', explode(',', $atts['collection']));
+            $collection_terms = get_terms(array(
+                'taxonomy' => 'alynt_faq_collection',
+                'slug' => $collection_slugs,
+                'hide_empty' => true
+            ));
+        } else {
+            $collection_terms = get_terms(array(
+                'taxonomy' => 'alynt_faq_collection',
+                'hide_empty' => true
+            ));
+        }
+        
+        if (!is_wp_error($collection_terms)) {
+            wp_cache_set($cache_key, $collection_terms, '', HOUR_IN_SECONDS);
+        }
     }
 
     if (!empty($collection_terms) && !is_wp_error($collection_terms)) {
@@ -175,3 +184,24 @@ function alynt_faq_render_collection($collection, $orderby) {
     
     return $output;
 }
+
+/**
+ * Clear collection cache when FAQs are modified
+ */
+function alynt_faq_clear_collection_cache() {
+    global $wpdb;
+    
+    // Delete only our specific transients
+    $wpdb->query(
+        $wpdb->prepare(
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+            '%' . $wpdb->esc_like('_transient_alynt_faq_collections_') . '%'
+        )
+    );
+}
+
+// Clear cache when FAQs or collections are modified
+add_action('save_post_alynt_faq', 'alynt_faq_clear_collection_cache');
+add_action('edited_alynt_faq_collection', 'alynt_faq_clear_collection_cache');
+add_action('created_alynt_faq_collection', 'alynt_faq_clear_collection_cache');
+add_action('deleted_alynt_faq_collection', 'alynt_faq_clear_collection_cache');

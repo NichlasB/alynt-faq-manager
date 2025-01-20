@@ -37,5 +37,26 @@ foreach ($options_to_delete as $option) {
     delete_option($option);
 }
 
-// Clear any cached data
-wp_cache_flush();
+// Remove custom capabilities from roles
+$roles = array('administrator', 'editor');
+foreach ($roles as $role_name) {
+    $role = get_role($role_name);
+    if ($role) {
+        $role->remove_cap('edit_alynt_faq');
+        $role->remove_cap('edit_alynt_faqs');
+        $role->remove_cap('edit_others_alynt_faqs');
+        $role->remove_cap('publish_alynt_faqs');
+        $role->remove_cap('read_alynt_faq');
+        $role->remove_cap('read_private_alynt_faqs');
+        $role->remove_cap('delete_alynt_faq');
+    }
+}
+
+// Clear only our transients
+global $wpdb;
+$wpdb->query(
+    $wpdb->prepare(
+        "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+        '%' . $wpdb->esc_like('_transient_alynt_faq_collections_') . '%'
+    )
+);

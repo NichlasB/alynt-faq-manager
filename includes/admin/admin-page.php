@@ -11,7 +11,7 @@ function alynt_faq_add_reorder_menu() {
         'edit.php?post_type=alynt_faq',
         'Reorder FAQs',
         'Reorder FAQs',
-        'manage_options',
+        'edit_others_alynt_faqs',
         'alynt-faq-order',
         'alynt_faq_reorder_page'
     );
@@ -72,6 +72,9 @@ function alynt_faq_admin_scripts($hook) {
 
 // Render the reorder page
 function alynt_faq_reorder_page() {
+    if (!current_user_can('edit_others_alynt_faqs')) {
+        wp_die(__('You do not have sufficient permissions to access this page.', 'alynt-faq'));
+    }
     $collections = get_terms(array(
         'taxonomy' => 'alynt_faq_collection',
         'hide_empty' => false,
@@ -127,25 +130,36 @@ add_action('admin_menu', 'alynt_faq_add_custom_css_page');
 add_action('wp_ajax_alynt_faq_save_custom_css', 'alynt_faq_save_custom_css');
 
 function alynt_faq_save_custom_css() {
-    if (!check_ajax_referer('alynt_faq_custom_css', 'nonce', false)) {
-        wp_send_json_error('Invalid nonce');
+    // Verify nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'alynt_faq_custom_css')) {
+        wp_send_json_error(array(
+            'message' => __('Security check failed.', 'alynt-faq')
+        ));
     }
 
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('Insufficient permissions');
+    // Check permissions
+    if (!current_user_can('edit_theme_options')) {
+        wp_send_json_error(array(
+            'message' => __('You do not have permission to edit custom CSS.', 'alynt-faq')
+        ));
     }
 
-    $custom_css = isset($_POST['custom_css']) ? wp_unslash($_POST['custom_css']) : '';
+    // Validate and sanitize CSS
+    $custom_css = isset($_POST['css']) ? wp_strip_all_tags($_POST['css']) : '';
     
-    // Basic sanitization that preserves CSS syntax
-    $custom_css = str_replace(
-        array('javascript:', 'expression(', '<script', '<style', '<link', '<iframe', '<object', '<embed'),
-        '', 
-        $custom_css
-    );
+    // Basic CSS validation
+    if (!empty($custom_css) && strpos($custom_css, '{') === false) {
+        wp_send_json_error(array(
+            'message' => __('Invalid CSS format.', 'alynt-faq')
+        ));
+    }
 
+    // Save the CSS
     update_option('alynt_faq_custom_css', $custom_css);
-    wp_send_json_success('Custom CSS saved successfully');
+
+    wp_send_json_success(array(
+        'message' => __('Custom CSS saved successfully.', 'alynt-faq')
+    ));
 }
 
 // Render the Custom CSS page
@@ -173,119 +187,150 @@ function alynt_faq_render_custom_css_page() {
                     
                     <h4>Example:</h4>
                     <pre>
-.faq-question {
-    color: #your-color;
-    font-size: 1.2rem;
-}
+                        .faq-question {
+                            color: #your-color;
+                            font-size: 1.2rem;
+                        }
 
-.icon-plus, .icon-minus {
-    --icon-color: #your-color;
-}</pre>
-                </div>
+                        .icon-plus, .icon-minus {
+                            --icon-color: #your-color;
+                        }</pre>
+                    </div>
 
-                <div class="css-editor">
-                    <textarea name="alynt_faq_custom_css" 
-                            id="alynt_faq_custom_css" 
-                            rows="20" 
-                            class="large-text code"
-                            style="font-family: monospace;"><?php echo esc_textarea($custom_css); ?></textarea>
-                </div>
+                    <div class="css-editor">
+                        <textarea name="alynt_faq_custom_css" 
+                        id="alynt_faq_custom_css" 
+                        rows="20" 
+                        class="large-text code"
+                        style="font-family: monospace;"><?php echo esc_textarea($custom_css); ?></textarea>
+                    </div>
 
-                <?php submit_button('Save Custom CSS'); ?>
-                
-                <button type="button" class="button" id="reset-css">Reset to Default</button>
-            </form>
+                    <?php submit_button('Save Custom CSS'); ?>
+
+                    <button type="button" class="button" id="reset-css">Reset to Default</button>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <style>
-        .alynt-faq-css-container {
-            margin-top: 20px;
-        }
-        .css-documentation {
-            background: #fff;
-            padding: 20px;
-            border: 1px solid #ccd0d4;
-            margin-bottom: 20px;
-        }
-        .css-documentation pre {
-            background: #f6f7f7;
-            padding: 15px;
-            border: 1px solid #ddd;
-            white-space: pre-wrap;
-        }
-        .css-documentation code {
-            background: #f6f7f7;
-            padding: 3px 5px;
-        }
-        #reset-css {
-            margin-left: 10px;
-        }
-    </style>
-    <?php
-}
+        <style>
+            .alynt-faq-css-container {
+                margin-top: 20px;
+            }
+            .css-documentation {
+                background: #fff;
+                padding: 20px;
+                border: 1px solid #ccd0d4;
+                margin-bottom: 20px;
+            }
+            .css-documentation pre {
+                background: #f6f7f7;
+                padding: 15px;
+                border: 1px solid #ddd;
+                white-space: pre-wrap;
+            }
+            .css-documentation code {
+                background: #f6f7f7;
+                padding: 3px 5px;
+            }
+            #reset-css {
+                margin-left: 10px;
+            }
+        </style>
+        <?php
+    }
 
-// Display sortable FAQ items
-function alynt_faq_display_sortable_items($collection_id) {
-    $args = array(
-        'post_type' => 'alynt_faq',
-        'posts_per_page' => -1,
-        'orderby' => 'menu_order',
-        'order' => 'ASC',
-        'tax_query' => array(
-            array(
-                'taxonomy' => 'alynt_faq_collection',
-                'field' => 'term_id',
-                'terms' => $collection_id,
+    // Display sortable FAQ items
+    function alynt_faq_display_sortable_items($collection_id) {
+        $args = array(
+            'post_type' => 'alynt_faq',
+            'posts_per_page' => -1,
+            'orderby' => 'menu_order',
+            'order' => 'ASC',
+            'tax_query' => array(
+                array(
+                    'taxonomy' => 'alynt_faq_collection',
+                    'field' => 'term_id',
+                    'terms' => $collection_id,
+                ),
             ),
-        ),
-    );
+        );
 
-    $faqs = new WP_Query($args);
+        $faqs = new WP_Query($args);
 
-    if ($faqs->have_posts()) : ?>
-        <ul id="sortable-faq-list" class="sortable-list">
-            <?php while ($faqs->have_posts()) : $faqs->the_post(); ?>
-                <li class="faq-item" data-post-id="<?php echo esc_attr(get_the_ID()); ?>">
-                    <div class="faq-handle dashicons dashicons-menu"></div>
-                    <div class="faq-title"><?php echo esc_html(get_the_title()); ?></div>
-                    <div class="faq-order"><?php echo esc_html(get_post_field('menu_order', get_the_ID())); ?></div>
-                </li>
-            <?php endwhile; ?>
-        </ul>
-    <?php else : ?>
-        <p class="description">No FAQs found in this collection.</p>
-    <?php endif;
-    wp_reset_postdata();
-}
-
-// Handle AJAX reordering
-add_action('wp_ajax_alynt_faq_update_order', 'alynt_faq_update_order');
-
-function alynt_faq_update_order() {
-    // Verify nonce
-    if (!check_ajax_referer('alynt_faq_reorder', 'nonce', false)) {
-        wp_send_json_error('Invalid nonce');
+        if ($faqs->have_posts()) : ?>
+            <ul id="sortable-faq-list" class="sortable-list">
+                <?php while ($faqs->have_posts()) : $faqs->the_post(); ?>
+                    <li class="faq-item" data-post-id="<?php echo esc_attr(get_the_ID()); ?>">
+                        <div class="faq-handle dashicons dashicons-menu"></div>
+                        <div class="faq-title"><?php echo esc_html(get_the_title()); ?></div>
+                        <div class="faq-order"><?php echo esc_html(get_post_field('menu_order', get_the_ID())); ?></div>
+                    </li>
+                <?php endwhile; ?>
+            </ul>
+        <?php else : ?>
+            <p class="description">No FAQs found in this collection.</p>
+        <?php endif;
+        wp_reset_postdata();
     }
 
-    // Check permissions
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('Insufficient permissions');
-    }
+    // Handle AJAX reordering
+    add_action('wp_ajax_alynt_faq_update_order', 'alynt_faq_update_order');
 
-    $post_ids = isset($_POST['postIds']) ? $_POST['postIds'] : null;
+    function alynt_faq_update_order() {
+        // Verify nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'alynt_faq_reorder')) {
+            wp_send_json_error(array(
+                'message' => __('Security check failed.', 'alynt-faq')
+            ));
+        }
 
-    if (!$post_ids || !is_array($post_ids)) {
-        wp_send_json_error('Invalid data');
-    }
+        // Check permissions
+        if (!current_user_can('edit_others_alynt_faqs')) {
+            wp_send_json_error(array(
+                'message' => __('You do not have permission to perform this action.', 'alynt-faq')
+            ));
+        }
 
-    // Update post order
-    foreach ($post_ids as $position => $post_id) {
-        wp_update_post(array(
-            'ID' => absint($post_id),
-            'menu_order' => $position
+        // Validate and sanitize input
+        $items = isset($_POST['postIds']) ? array_map('absint', $_POST['postIds']) : array();
+
+        if (empty($items)) {
+            wp_send_json_error(array(
+                'message' => __('No items provided for reordering.', 'alynt-faq')
+            ));
+        }
+
+        // Verify all posts exist and are FAQs
+        foreach ($items as $post_id) {
+            $post = get_post($post_id);
+            if (!$post || $post->post_type !== 'alynt_faq') {
+                wp_send_json_error(array(
+                    'message' => __('Invalid FAQ item detected.', 'alynt-faq')
+                ));
+            }
+        }
+
+        // Update post menu order
+        global $wpdb;
+        foreach ($items as $position => $id) {
+            $wpdb->update(
+                $wpdb->posts,
+                array('menu_order' => $position),
+                array('ID' => $id, 'post_type' => 'alynt_faq'),
+                array('%d'),
+                array('%d', '%s')
+            );
+        }
+
+        // Clear relevant transients and post caches
+        foreach ($items as $post_id) {
+            clean_post_cache($post_id);
+        }
+
+        // Clear collection cache since order changed
+        alynt_faq_clear_collection_cache();
+
+        wp_send_json_success(array(
+            'message' => __('FAQ order updated successfully.', 'alynt-faq')
         ));
     }
-
-    wp_send_json_success('Order updated successfully');
-}

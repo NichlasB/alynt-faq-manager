@@ -93,11 +93,11 @@ jQuery(document).ready(function($) {
         }
 
         $feedback
-            .removeClass('notice-success notice-error')
-            .addClass('notice notice-' + type)
-            .html('<p>' + message + '</p>')
-            .fadeIn()
-            .delay(3000)
-            .fadeOut();
+        .removeClass('notice-success notice-error')
+        .addClass('notice notice-' + type)
+        .html('<p>' + message + '</p>')
+        .fadeIn()
+        .delay(3000)
+        .fadeOut();
     }
 });

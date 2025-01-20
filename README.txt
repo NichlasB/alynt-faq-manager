@@ -1,6 +1,6 @@
 === Alynt FAQ Manager ===
 Contributors: Alynt
-Tags: faq, accordion, questions, answers
+Tags: faq, accordion, questions, answers, accessibility, responsive
 Requires at least: 5.0
 Tested up to: 6.4
 Stable tag: 1.0.0
@@ -19,10 +19,13 @@ Alynt FAQ Manager is a feature-rich FAQ plugin that helps you organize and displ
 * Create and manage FAQ collections
 * Drag-and-drop reordering of FAQs
 * Responsive accordion display
-* Accessibility-ready with ARIA labels and keyboard navigation
-* Mobile-friendly design
-* Customizable styling that inherits from your theme
+* Full accessibility compliance with ARIA labels and keyboard navigation
+* Mobile-first design
+* Customizable styling with CSS variables
 * Individual FAQ post pages
+* SEO-friendly structure
+* Secure codebase with proper capability checks
+* Performance optimized with smart caching
 * Previous/Next navigation within collections
 * Expandable/Collapsible accordions
 
@@ -48,30 +51,46 @@ Available attributes:
 3. Create FAQ collections under FAQs > Collections.
 4. Add FAQ items under FAQs > Add New.
 5. Use the shortcode [alynt_faq] to display your FAQs.
+6. Optionally, customize the CSS under FAQs > Custom CSS.
 
 == Frequently Asked Questions ==
 
 = Can I customize the colors? =
 
-Yes, the plugin inherits colors from your theme and provides CSS variables for further customization.
+Yes, you can customize colors and other styles through:
+1. The built-in Custom CSS editor (FAQs > Custom CSS)
+2. Your theme's CSS using provided CSS variables
+3. Direct CSS overrides in your theme
 
 = Can I reorder my FAQs? =
 
-Yes, go to FAQs > Reorder FAQs to drag and drop your FAQs into the desired order within each collection.
+Yes, go to FAQs > Reorder FAQs to drag and drop your FAQs into the desired order within each collection. The order is preserved and can be different for each collection.
 
 = Can I display specific collections only? =
 
 Yes, use the collection attribute in the shortcode:
 [alynt_faq collection="collection-slug"]
+You can also specify multiple collections: [alynt_faq collection="collection1,collection2"]
 
 = Is it accessibility-ready? =
 
-Yes, the plugin includes:
-* ARIA labels
-* Keyboard navigation
-* Screen reader support
+Yes, the plugin is fully accessibility compliant with:
+* ARIA labels and roles
+* Keyboard navigation support
+* Screen reader optimizations
+* Focus management
 * Skip to content links
-* Proper heading structure
+* Semantic HTML structure
+* Proper heading hierarchy
+
+= Is it secure? =
+
+Yes, the plugin implements multiple security measures:
+* Proper capability checks for all admin actions
+* Nonce verification for forms and AJAX requests
+* Input sanitization and validation
+* Secure database operations
+* XSS prevention through proper escaping
 
 == Screenshots ==
 
@@ -79,58 +98,74 @@ Yes, the plugin includes:
 2. Admin interface
 3. Reordering interface
 4. Single FAQ post view
+5. Custom CSS editor
+6. Collection management
 
 == Changelog ==
 
 = 1.0.0 =
-* Initial release
+* Initial release with core features
+* Secure capability management system
+* Performance optimized caching
+* Full accessibility compliance
+* Mobile-first responsive design
+* Custom CSS editor
+* Collection management
+* FAQ reordering interface
 
 == Upgrade Notice ==
 
 = 1.0.0 =
-Initial release
+Initial release with complete FAQ management system, including security features and performance optimization.
 
 == Additional Information ==
 
 = Template Overriding =
 
-You can override the plugin's templates by copying them from the plugin's `/templates/` directory to your theme:
+Override the plugin's templates by copying from `/templates/` to your theme:
 
 * single-alynt_faq.php - Single FAQ post template
 * archive-alynt_faq.php - FAQ archive template
 * taxonomy-alynt_faq_collection.php - Collection archive template
 
-Copy these files to:
+Copy to either:
 * your-theme/alynt-faq/[template-name].php
 or
 * your-theme/[template-name].php
 
 = Styling Customization =
 
-The plugin uses CSS variables that can be customized in your theme:
+Customize appearance using CSS variables:
 
 :root {
     --alynt-faq-icon-color: currentColor;
     --alynt-faq-border-color: #ddd;
     --alynt-faq-transition: all 0.3s ease;
+    --alynt-faq-bg-color: transparent;
+    --alynt-faq-text-color: inherit;
+    --alynt-faq-hover-bg: rgba(0, 0, 0, 0.02);
 }
+
 = Developer Hooks =
 
 Actions:
+* alynt_faq_before_accordion
+* alynt_faq_after_accordion
+* alynt_faq_before_question
+* alynt_faq_after_question
+* alynt_faq_before_collection
+* alynt_faq_after_collection
 
-alynt_faq_before_accordion
-alynt_faq_after_accordion
-alynt_faq_before_question
-alynt_faq_after_question
 Filters:
+* alynt_faq_locate_template
+* alynt_faq_shortcode_atts
+* alynt_faq_collection_args
+* alynt_faq_question_classes
+* alynt_faq_answer_classes
 
-alynt_faq_locate_template
-alynt_faq_shortcode_atts
-alynt_faq_collection_args
-alynt_faq_question_classes
-alynt_faq_answer_classes
 = Requirements =
 
-WordPress 5.0 or higher
-PHP 7.2 or higher
-JavaScript enabled in the browser
+* WordPress 5.0 or higher
+* PHP 7.2 or higher
+* JavaScript enabled
+* Modern browser support (Chrome, Firefox, Safari, Edge latest versions)

@@ -34,43 +34,62 @@ function alynt_faq_register_post_type_and_taxonomy() {
 
     register_taxonomy('alynt_faq_collection', array('alynt_faq'), $taxonomy_args);
 
+/**
+ * Check permissions before allowing collection management
+ *
+ * @param string $taxonomy The taxonomy being modified
+ */
+function alynt_faq_check_collection_permissions($taxonomy = 'alynt_faq_collection') {
+    if (!current_user_can('manage_categories')) {
+        wp_die(
+            __('You do not have sufficient permissions to manage FAQ collections.', 'alynt-faq'),
+            __('Permission Denied', 'alynt-faq'),
+            array('response' => 403)
+        );
+    }
+}
+add_action('create_term', 'alynt_faq_check_collection_permissions', 10, 1);
+add_action('edit_term', 'alynt_faq_check_collection_permissions', 10, 1);
+add_action('delete_term', 'alynt_faq_check_collection_permissions', 10, 1);
+
     // Register FAQ Post Type
-    $post_type_labels = array(
-        'name'               => 'FAQs',
-        'singular_name'      => 'FAQ',
-        'menu_name'          => 'FAQs',
-        'add_new'            => 'Add New',
-        'add_new_item'       => 'Add New FAQ',
-        'edit_item'          => 'Edit FAQ',
-        'new_item'           => 'New FAQ',
-        'view_item'          => 'View FAQ',
-        'search_items'       => 'Search FAQs',
-        'not_found'          => 'No FAQs found',
-        'not_found_in_trash' => 'No FAQs found in Trash',
-    );
+$post_type_labels = array(
+    'name'               => 'FAQs',
+    'singular_name'      => 'FAQ',
+    'menu_name'          => 'FAQs',
+    'add_new'            => 'Add New',
+    'add_new_item'       => 'Add New FAQ',
+    'edit_item'          => 'Edit FAQ',
+    'new_item'           => 'New FAQ',
+    'view_item'          => 'View FAQ',
+    'search_items'       => 'Search FAQs',
+    'not_found'          => 'No FAQs found',
+    'not_found_in_trash' => 'No FAQs found in Trash',
+);
 
-    $post_type_args = array(
-        'labels'              => $post_type_labels,
-        'public'              => true,
-        'publicly_queryable'  => true,
-        'show_ui'             => true,
-        'show_in_menu'        => true,
-        'query_var'           => true,
-        'rewrite'             => array('slug' => 'faq-archive'),
-        'capability_type'     => 'post',
-        'has_archive'         => true,
-        'hierarchical'        => false,
-        'menu_position'       => 20,
-        'menu_icon'           => 'dashicons-format-chat',
-        'supports'            => array('title', 'editor', 'revisions'),
-        'show_in_rest'        => true,
-        'rest_base'           => 'faqs',
-    );
+$post_type_args = array(
+    'labels'              => $post_type_labels,
+    'public'              => true,
+    'publicly_queryable'  => true,
+    'show_ui'             => true,
+    'show_in_menu'        => true,
+    'query_var'           => true,
+    'rewrite'             => array('slug' => 'faq-archive'),
+    'capability_type'     => array('alynt_faq', 'alynt_faqs'),
+    'map_meta_cap'        => true,
+    'has_archive'         => true,
+    'hierarchical'        => false,
+    'menu_position'       => 20,
+    'menu_icon'           => 'dashicons-format-chat',
+    'supports'            => array('title', 'editor', 'revisions'),
+    'show_in_rest'        => true,
+    'rest_base'           => 'faqs',
+);
 
-    register_post_type('alynt_faq', $post_type_args);
+register_post_type('alynt_faq', $post_type_args);
 
     // Change default "Uncategorized" term to "No Collection"
-    add_action('admin_init', 'alynt_faq_change_default_term_name');
+add_action('admin_init', 'alynt_faq_change_default_term_name');
 }
 
 // Redirect archive page to designated FAQ page
@@ -183,3 +202,22 @@ function alynt_faq_convert_taxonomy_id_to_term_in_query($query) {
     $q_vars[$taxonomy] = $term->slug;
 }
 }
+
+/**
+ * Add custom capabilities on plugin activation
+ */
+function alynt_faq_add_capabilities() {
+    // Get administrator role
+    $admin = get_role('administrator');
+    
+    if ($admin) {
+        $admin->add_cap('edit_alynt_faq');
+        $admin->add_cap('edit_alynt_faqs');
+        $admin->add_cap('edit_others_alynt_faqs');
+        $admin->add_cap('publish_alynt_faqs');
+        $admin->add_cap('read_alynt_faq');
+        $admin->add_cap('read_private_alynt_faqs');
+        $admin->add_cap('delete_alynt_faq');
+    }
+}
+register_activation_hook(plugin_dir_path(dirname(__FILE__)) . 'alynt-faq-manager.php', 'alynt_faq_add_capabilities');
