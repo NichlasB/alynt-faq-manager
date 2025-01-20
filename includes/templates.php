@@ -11,6 +11,14 @@ class Alynt_FAQ_Template_Loader {
      * Constructor
      */
     public function __construct() {
+        // Move template filters to init to ensure proper loading
+        add_action('init', array($this, 'init_template_filters'));
+    }
+
+    /**
+     * Initialize template filters
+     */
+    public function init_template_filters() {
         add_filter('template_include', array($this, 'template_loader'));
         add_filter('single_template', array($this, 'load_single_template'));
     }
@@ -79,21 +87,27 @@ class Alynt_FAQ_Template_Loader {
     }
 }
 
-// Initialize template loader
-function alynt_faq_template_loader() {
-    new Alynt_FAQ_Template_Loader();
+// Initialize template loader on init with lower priority
+function alynt_faq_init_template_system() {
+    global $alynt_faq_template_loader;
+    if (!isset($alynt_faq_template_loader)) {
+        $alynt_faq_template_loader = new Alynt_FAQ_Template_Loader();
+    }
 }
-add_action('init', 'alynt_faq_template_loader');
+add_action('init', 'alynt_faq_init_template_system', 5);
 
-/**
- * Add theme support for post thumbnails if not already added
- */
-function alynt_faq_add_theme_support() {
+// Register theme supports and features on after_setup_theme
+function alynt_faq_setup_theme_features() {
+    // Add post thumbnail support if needed
     if (!current_theme_supports('post-thumbnails')) {
         add_theme_support('post-thumbnails');
     }
+    
+    // Add custom image sizes
+    add_image_size('alynt-faq-thumbnail', 300, 200, true);
+    add_image_size('alynt-faq-full', 800, 400, false);
 }
-add_action('after_setup_theme', 'alynt_faq_add_theme_support');
+add_action('after_setup_theme', 'alynt_faq_setup_theme_features');
 
 /**
  * Add body classes for FAQ pages
@@ -123,7 +137,7 @@ function alynt_faq_content_wrapper($content) {
 add_filter('the_content', 'alynt_faq_content_wrapper');
 
 /**
- * Register sidebars for FAQ templates if theme supports widgets
+ * Register sidebars for FAQ templates
  */
 function alynt_faq_register_sidebars() {
     if (current_theme_supports('widgets')) {
@@ -139,15 +153,6 @@ function alynt_faq_register_sidebars() {
     }
 }
 add_action('widgets_init', 'alynt_faq_register_sidebars');
-
-/**
- * Add custom image sizes for FAQ featured images
- */
-function alynt_faq_add_image_sizes() {
-    add_image_size('alynt-faq-thumbnail', 300, 200, true);
-    add_image_size('alynt-faq-full', 800, 400, false);
-}
-add_action('after_setup_theme', 'alynt_faq_add_image_sizes');
 
 /**
  * Filter the archive title for FAQ archives
