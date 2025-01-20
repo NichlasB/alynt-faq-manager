@@ -56,7 +56,7 @@ function alynt_faq_register_post_type_and_taxonomy() {
         'show_ui'             => true,
         'show_in_menu'        => true,
         'query_var'           => true,
-        'rewrite'             => array('slug' => 'faq'),
+        'rewrite'             => array('slug' => 'faq-archive'),
         'capability_type'     => 'post',
         'has_archive'         => true,
         'hierarchical'        => false,
@@ -71,6 +71,15 @@ function alynt_faq_register_post_type_and_taxonomy() {
 
     // Change default "Uncategorized" term to "No Collection"
     add_action('admin_init', 'alynt_faq_change_default_term_name');
+}
+
+// Redirect archive page to designated FAQ page
+add_action('template_redirect', 'redirect_faq_archive');
+function redirect_faq_archive() {
+    if (is_post_type_archive('alynt_faq')) {
+        wp_safe_redirect(home_url('/faq/'));
+        exit;
+    }
 }
 
 function alynt_faq_change_default_term_name() {
@@ -107,24 +116,24 @@ add_action('manage_alynt_faq_posts_custom_column', 'alynt_faq_custom_column_cont
 function alynt_faq_custom_column_content($column, $post_id) {
     switch ($column) {
         case 'collection':
-            $terms = get_the_terms($post_id, 'alynt_faq_collection');
-            if (!empty($terms)) {
-                $term_names = array();
-                foreach ($terms as $term) {
-                    $term_names[] = sprintf(
-                        '<a href="%s">%s</a>',
-                        esc_url(admin_url('edit.php?post_type=alynt_faq&alynt_faq_collection=' . $term->slug)),
-                        esc_html($term->name)
-                    );
-                }
-                echo implode(', ', $term_names);
-            } else {
-                echo '<span class="no-collection">No Collection</span>';
+        $terms = get_the_terms($post_id, 'alynt_faq_collection');
+        if (!empty($terms)) {
+            $term_names = array();
+            foreach ($terms as $term) {
+                $term_names[] = sprintf(
+                    '<a href="%s">%s</a>',
+                    esc_url(admin_url('edit.php?post_type=alynt_faq&alynt_faq_collection=' . $term->slug)),
+                    esc_html($term->name)
+                );
             }
-            break;
+            echo implode(', ', $term_names);
+        } else {
+            echo '<span class="no-collection">No Collection</span>';
+        }
+        break;
         case 'order':
-            echo get_post_field('menu_order', $post_id);
-            break;
+        echo get_post_field('menu_order', $post_id);
+        break;
     }
 }
 
@@ -171,6 +180,6 @@ function alynt_faq_convert_taxonomy_id_to_term_in_query($query) {
         && $q_vars[$taxonomy] != 0
     ) {
         $term = get_term_by('id', $q_vars[$taxonomy], $taxonomy);
-        $q_vars[$taxonomy] = $term->slug;
-    }
+    $q_vars[$taxonomy] = $term->slug;
+}
 }
