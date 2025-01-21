@@ -124,6 +124,9 @@ This project is licensed under the GPL v2 or later - see the LICENSE file for de
 
 ## Changelog
 
+### 1.0.4
+- Included required dependencies in plugin distribution
+
 ### 1.0.3
 - Updated PHP version requirement to 8.0+
 - Removed legacy Internet Explorer support

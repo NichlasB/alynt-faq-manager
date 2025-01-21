@@ -100,6 +100,9 @@ The plugin automatically checks for new versions on GitHub. When an update is av
 
 == Changelog ==
 
+= 1.0.4 =
+* Included required dependencies in plugin distribution
+
 = 1.0.3 =
 * Updated PHP version requirement to 8.0+
 * Removed legacy Internet Explorer support
@@ -123,6 +126,9 @@ The plugin automatically checks for new versions on GitHub. When an update is av
 * FAQ reordering interface
 
 == Upgrade Notice ==
+
+= 1.0.4 =
+* Included required dependencies in plugin distribution
 
 = 1.0.3 =
 Documentation improvements and system requirements updated to reflect modern standards. No functional changes.

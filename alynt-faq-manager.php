@@ -3,7 +3,7 @@
  * Plugin Name: Alynt FAQ Manager
  * Plugin URI: https://github.com/NichlasB/alynt-faq-manager
  * Description: A custom FAQ management system with collections, ordering, and responsive accordion display
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: Alynt
  * Author URI: https://alynt.com
  * Text Domain: alynt-faq
@@ -57,7 +57,7 @@ if (!defined('ALYNT_FAQ_LOADED')) {
     define('ALYNT_FAQ_LOADED', true);
     
     // Define plugin constants
-    define('ALYNT_FAQ_VERSION', '1.0.3');
+    define('ALYNT_FAQ_VERSION', '1.0.4');
     define('ALYNT_FAQ_PLUGIN_DIR', plugin_dir_path(__FILE__));
     define('ALYNT_FAQ_PLUGIN_URL', plugin_dir_url(__FILE__));
 
