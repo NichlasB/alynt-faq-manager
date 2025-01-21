@@ -3,7 +3,7 @@
  * Plugin Name: Alynt FAQ Manager
  * Plugin URI: https://github.com/NichlasB/alynt-faq-manager
  * Description: A custom FAQ management system with collections, ordering, and responsive accordion display
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Alynt
  * Author URI: https://alynt.com
  * Text Domain: alynt-faq
@@ -23,10 +23,10 @@ use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 if (class_exists('YahnisElsts\PluginUpdateChecker\v5\PucFactory')) {
     $myUpdateChecker = PucFactory::buildUpdateChecker(
-        'https://github.com/NichlasB/alynt-faq-manager/',
-        __FILE__,
-        'alynt-faq-manager'
-    );
+    'https://github.com/NichlasB/alynt-faq-manager',
+    __FILE__,
+    'alynt-faq-manager'
+);
 
     // Set the branch that contains the stable release.
     $myUpdateChecker->setBranch('main');
@@ -42,7 +42,7 @@ function alynt_faq_check_version() {
     $current_version = get_option('alynt_faq_version', '0');
     if (version_compare($current_version, ALYNT_FAQ_VERSION, '<')) {
         // Run upgrade routine if needed
-        
+
         // Update version in database
         update_option('alynt_faq_version', ALYNT_FAQ_VERSION);
         
@@ -57,7 +57,7 @@ if (!defined('ALYNT_FAQ_LOADED')) {
     define('ALYNT_FAQ_LOADED', true);
     
     // Define plugin constants
-    define('ALYNT_FAQ_VERSION', '1.0.1');
+    define('ALYNT_FAQ_VERSION', '1.0.2');
     define('ALYNT_FAQ_PLUGIN_DIR', plugin_dir_path(__FILE__));
     define('ALYNT_FAQ_PLUGIN_URL', plugin_dir_url(__FILE__));
 
