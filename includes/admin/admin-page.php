@@ -65,12 +65,12 @@ function alynt_faq_admin_scripts($hook) {
         'nonce' => wp_create_nonce('alynt_faq_reorder'),
         'cssNonce' => wp_create_nonce('alynt_faq_custom_css'),
         'messages' => array(
-        'orderSaved' => __('FAQ order has been updated.', 'alynt-faq'),
-        'error' => __('An error occurred while saving the order.', 'alynt-faq'),
-        'cssSaved' => __('Custom CSS saved successfully.', 'alynt-faq'),
-        'cssError' => __('Error saving custom CSS.', 'alynt-faq')
-    )
-));
+            'orderSaved' => __('FAQ order has been updated.', 'alynt-faq'),
+            'error' => __('An error occurred while saving the order.', 'alynt-faq'),
+            'cssSaved' => __('Custom CSS saved successfully.', 'alynt-faq'),
+            'cssError' => __('Error saving custom CSS.', 'alynt-faq')
+        )
+    ));
 }
 
 // Render the reorder page
@@ -133,27 +133,15 @@ add_action('admin_menu', 'alynt_faq_add_custom_css_page');
 add_action('wp_ajax_alynt_faq_save_custom_css', 'alynt_faq_save_custom_css');
 
 function alynt_faq_save_custom_css() {
-    // Debug output
-    error_log('Custom CSS save attempt started');
-    
     // Verify nonce
-    if (!isset($_POST['nonce'])) {
-        error_log('Nonce not set in request');
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'alynt_faq_custom_css')) {
         wp_send_json_error(array(
-            'message' => __('Security check failed: nonce missing.', 'alynt-faq')
-        ));
-    }
-
-    if (!wp_verify_nonce($_POST['nonce'], 'alynt_faq_custom_css')) {
-        error_log('Nonce verification failed');
-        wp_send_json_error(array(
-            'message' => __('Security check failed: invalid nonce.', 'alynt-faq')
+            'message' => __('Security check failed.', 'alynt-faq')
         ));
     }
 
     // Check permissions
     if (!current_user_can('edit_theme_options')) {
-        error_log('Permission check failed for user');
         wp_send_json_error(array(
             'message' => __('You do not have permission to edit custom CSS.', 'alynt-faq')
         ));
@@ -161,20 +149,17 @@ function alynt_faq_save_custom_css() {
 
     // Validate and sanitize CSS
     if (!isset($_POST['css'])) {
-        error_log('CSS parameter not found in request');
         wp_send_json_error(array(
             'message' => __('No CSS content provided.', 'alynt-faq')
         ));
     }
 
-    $custom_css = wp_strip_all_tags($_POST['css']);
-    error_log('Received CSS content length: ' . strlen($custom_css));
+    $custom_css = stripslashes(wp_strip_all_tags($_POST['css']));
     
     // Basic CSS validation
     if (!empty($custom_css)) {
         // Check for basic CSS syntax
         if (strpos($custom_css, '{') === false || strpos($custom_css, '}') === false) {
-            error_log('Invalid CSS format - missing brackets');
             wp_send_json_error(array(
                 'message' => __('Invalid CSS format. CSS must contain valid rules with { } brackets.', 'alynt-faq')
             ));
@@ -192,7 +177,6 @@ function alynt_faq_save_custom_css() {
 
         foreach ($harmful_patterns as $pattern) {
             if (stripos($custom_css, $pattern) !== false) {
-                error_log('Harmful CSS pattern detected: ' . $pattern);
                 wp_send_json_error(array(
                     'message' => __('Invalid CSS content detected.', 'alynt-faq')
                 ));
@@ -204,13 +188,11 @@ function alynt_faq_save_custom_css() {
     $result = update_option('alynt_faq_custom_css', $custom_css);
     
     if ($result === false) {
-        error_log('Failed to save CSS to options table');
         wp_send_json_error(array(
             'message' => __('Failed to save CSS. Please try again.', 'alynt-faq')
         ));
     }
 
-    error_log('Custom CSS saved successfully');
     wp_send_json_success(array(
         'message' => __('Custom CSS saved successfully.', 'alynt-faq')
     ));

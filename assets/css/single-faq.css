@@ -7,7 +7,7 @@
 .alynt-faq-container {
     margin: 0 auto;
     max-width: 960px;
-    padding: 20px;
+    padding: 20px 0;
 }
 
 .alynt-faq-header {
@@ -45,7 +45,6 @@
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
-    margin-bottom: 40px;
     padding: 30px;
 }
 
