@@ -211,13 +211,47 @@ function alynt_faq_add_capabilities() {
     $admin = get_role('administrator');
     
     if ($admin) {
+        // Post type single capabilities
         $admin->add_cap('edit_alynt_faq');
+        $admin->add_cap('read_alynt_faq');
+        $admin->add_cap('delete_alynt_faq');
+        
+        // Post type plural capabilities
         $admin->add_cap('edit_alynt_faqs');
         $admin->add_cap('edit_others_alynt_faqs');
         $admin->add_cap('publish_alynt_faqs');
-        $admin->add_cap('read_alynt_faq');
         $admin->add_cap('read_private_alynt_faqs');
-        $admin->add_cap('delete_alynt_faq');
+        $admin->add_cap('delete_alynt_faqs');
+        $admin->add_cap('delete_private_alynt_faqs');
+        $admin->add_cap('delete_published_alynt_faqs');
+        $admin->add_cap('delete_others_alynt_faqs');
+        $admin->add_cap('edit_private_alynt_faqs');
+        $admin->add_cap('edit_published_alynt_faqs');
     }
 }
 register_activation_hook(plugin_dir_path(dirname(__FILE__)) . 'alynt-faq-manager.php', 'alynt_faq_add_capabilities');
+
+add_action('init', 'alynt_faq_add_admin_capabilities');
+/**
+ * Add custom capabilities for existing administrators
+ */
+function alynt_faq_add_admin_capabilities() {
+    // Get all administrator users
+    $admins = get_users(['role' => 'administrator']);
+    
+    foreach ($admins as $admin) {
+        $admin->add_cap('edit_alynt_faq');
+        $admin->add_cap('read_alynt_faq');
+        $admin->add_cap('delete_alynt_faq');
+        $admin->add_cap('edit_alynt_faqs');
+        $admin->add_cap('edit_others_alynt_faqs');
+        $admin->add_cap('publish_alynt_faqs');
+        $admin->add_cap('read_private_alynt_faqs');
+        $admin->add_cap('delete_alynt_faqs');
+        $admin->add_cap('delete_private_alynt_faqs');
+        $admin->add_cap('delete_published_alynt_faqs');
+        $admin->add_cap('delete_others_alynt_faqs');
+        $admin->add_cap('edit_private_alynt_faqs');
+        $admin->add_cap('edit_published_alynt_faqs');
+    }
+}
