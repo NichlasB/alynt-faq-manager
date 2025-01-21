@@ -3,8 +3,8 @@ Contributors: Alynt
 Tags: faq, accordion, questions, answers, accessibility, responsive
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 1.0.0
-Requires PHP: 7.2
+Stable tag: 1.0.2
+Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,7 @@ Alynt FAQ Manager is a feature-rich FAQ plugin that helps you organize and displ
 * Performance optimized with smart caching
 * Previous/Next navigation within collections
 * Expandable/Collapsible accordions
+* Automatic updates via GitHub integration
 
 = Shortcode Usage =
 
@@ -52,6 +53,7 @@ Available attributes:
 4. Add FAQ items under FAQs > Add New.
 5. Use the shortcode [alynt_faq] to display your FAQs.
 6. Optionally, customize the CSS under FAQs > Custom CSS.
+7. Updates will be automatically detected and can be installed directly through the WordPress dashboard.
 
 == Frequently Asked Questions ==
 
@@ -92,16 +94,16 @@ Yes, the plugin implements multiple security measures:
 * Secure database operations
 * XSS prevention through proper escaping
 
-== Screenshots ==
+= How do updates work? =
 
-1. FAQ accordion display
-2. Admin interface
-3. Reordering interface
-4. Single FAQ post view
-5. Custom CSS editor
-6. Collection management
+The plugin automatically checks for new versions on GitHub. When an update is available, WordPress will notify you just like with any other plugin update. You can update directly through the WordPress dashboard with a single click.
 
 == Changelog ==
+
+= 1.0.2 =
+* Added automatic update functionality via GitHub
+* Plugin can now check for and install updates directly from WordPress dashboard
+* Improved plugin version management
 
 = 1.0.0 =
 * Initial release with core features
@@ -114,6 +116,9 @@ Yes, the plugin implements multiple security measures:
 * FAQ reordering interface
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Added automatic update functionality. Plugin can now self-update through WordPress dashboard.
 
 = 1.0.0 =
 Initial release with complete FAQ management system, including security features and performance optimization.
@@ -166,6 +171,6 @@ Filters:
 = Requirements =
 
 * WordPress 5.0 or higher
-* PHP 7.2 or higher
+* PHP 8.0 or higher
 * JavaScript enabled
 * Modern browser support (Chrome, Firefox, Safari, Edge latest versions)

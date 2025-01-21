@@ -13,6 +13,7 @@ A powerful WordPress FAQ management plugin with collections, custom ordering, an
 - 🔗 Individual FAQ post pages
 - ⌨️ Full keyboard navigation support
 - 🔍 SEO-friendly structure
+- 🔄 Automatic updates via GitHub
 
 ## Installation
 
@@ -21,6 +22,7 @@ A powerful WordPress FAQ management plugin with collections, custom ordering, an
 3. Activate through WordPress plugins screen
 4. Create collections under FAQs > Collections
 5. Add FAQ items under FAQs > Add New
+6. Updates will be automatically detected and can be installed through WordPress
 
 ## Usage
 
@@ -98,7 +100,7 @@ add_filter('alynt_faq_answer_classes', 'your_function', 10, 1);
 ## Requirements
 
 - WordPress 5.0+
-- PHP 7.2+
+- PHP 8.0+
 - JavaScript enabled
 
 ## Browser Support
@@ -107,7 +109,6 @@ add_filter('alynt_faq_answer_classes', 'your_function', 10, 1);
 - Firefox (latest)
 - Safari (latest)
 - Edge (latest)
-- IE11 (basic support)
 
 ## Contributing
 
@@ -123,12 +124,17 @@ This project is licensed under the GPL v2 or later - see the LICENSE file for de
 
 ## Changelog
 
-### 1.0.0
+### 1.0.2
+- Added automatic update functionality via GitHub
+- Plugin can now check for and install updates directly from WordPress dashboard
+- Improved plugin version management
 
-- Initial release
-- Core FAQ management functionality
-- Collection organization system
-- Drag-and-drop reordering
-- Responsive accordion display
-- Accessibility implementation
-- Template override system
+### 1.0.0
+- Initial release with core features
+- Secure capability management system
+- Performance optimized caching
+- Full accessibility compliance
+- Mobile-first responsive design
+- Custom CSS editor
+- Collection management
+- FAQ reordering interface
