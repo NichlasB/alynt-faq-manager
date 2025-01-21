@@ -132,7 +132,7 @@
 .faq-answer a {
     text-decoration: underline;
     text-decoration-thickness: 2px;
-    text-decoration-color: rgba(0, 0, 0, 0.3); /* subtle underline */
+    text-decoration-color: rgba(0, 0, 0, 0.3);
     text-underline-offset: 2px;
     transition: all 0.2s ease;
     color: inherit;
@@ -141,10 +141,10 @@
 .faq-answer a:hover,
 .faq-answer a:focus {
     color: inherit;
-    text-decoration-color: currentColor; /* makes underline more prominent */
+    text-decoration-color: currentColor;
     text-decoration-thickness: 2px;
     outline: none;
-    background-color: rgba(0, 0, 0, 0.05); /* subtle background highlight */
+    background-color: rgba(0, 0, 0, 0.05);
     border-radius: 2px;
 }
 
