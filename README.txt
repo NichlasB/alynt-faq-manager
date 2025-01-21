@@ -2,8 +2,8 @@
 Contributors: Alynt
 Tags: faq, accordion, questions, answers, accessibility, responsive
 Requires at least: 5.0
-Tested up to: 6.4
-Stable tag: 1.0.2
+Tested up to: 6.7.1
+Stable tag: 1.0.4
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -100,6 +100,11 @@ The plugin automatically checks for new versions on GitHub. When an update is av
 
 == Changelog ==
 
+= 1.0.5 =
+* Updated WordPress compatibility to version 6.7.1
+* Removed compatibility warning messages
+* Improved plugin version reporting
+
 = 1.0.4 =
 * Included required dependencies in plugin distribution
 
@@ -126,6 +131,9 @@ The plugin automatically checks for new versions on GitHub. When an update is av
 * FAQ reordering interface
 
 == Upgrade Notice ==
+
+= 1.0.5 =
+Compatibility update for WordPress 6.5. Update recommended for all users to remove warning messages.
 
 = 1.0.4 =
 * Included required dependencies in plugin distribution

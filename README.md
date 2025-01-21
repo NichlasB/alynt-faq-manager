@@ -124,6 +124,11 @@ This project is licensed under the GPL v2 or later - see the LICENSE file for de
 
 ## Changelog
 
+### 1.0.5
+- Updated WordPress compatibility to version 6.7.1
+- Removed compatibility warning messages
+- Improved plugin version reporting
+
 ### 1.0.4
 - Included required dependencies in plugin distribution
 
