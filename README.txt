@@ -100,6 +100,13 @@ The plugin automatically checks for new versions on GitHub. When an update is av
 
 == Changelog ==
 
+= 1.0.3 =
+* Updated PHP version requirement to 8.0+
+* Removed legacy Internet Explorer support
+* Added documentation for automatic updates
+* Updated installation instructions
+* Improved documentation clarity
+
 = 1.0.2 =
 * Added automatic update functionality via GitHub
 * Plugin can now check for and install updates directly from WordPress dashboard
@@ -116,6 +123,9 @@ The plugin automatically checks for new versions on GitHub. When an update is av
 * FAQ reordering interface
 
 == Upgrade Notice ==
+
+= 1.0.3 =
+Documentation improvements and system requirements updated to reflect modern standards. No functional changes.
 
 = 1.0.2 =
 Added automatic update functionality. Plugin can now self-update through WordPress dashboard.

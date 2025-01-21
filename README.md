@@ -124,6 +124,13 @@ This project is licensed under the GPL v2 or later - see the LICENSE file for de
 
 ## Changelog
 
+### 1.0.3
+- Updated PHP version requirement to 8.0+
+- Removed legacy Internet Explorer support
+- Added documentation for automatic updates
+- Updated installation instructions
+- Improved documentation clarity
+
 ### 1.0.2
 - Added automatic update functionality via GitHub
 - Plugin can now check for and install updates directly from WordPress dashboard
