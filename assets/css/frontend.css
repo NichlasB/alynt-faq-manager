@@ -84,7 +84,6 @@
 
 .faq-header:has(.faq-question[aria-expanded="true"]) {
     border-bottom: 1px solid;
-    margin-bottom: 30px;
 }
 
 
@@ -122,11 +121,11 @@
 }
 
 .faq-answer {
-    padding: 0 1rem 1rem;
+    padding: 2rem 1rem;
 }
 
 .answer-content {
-    margin-bottom: 1rem;
+    margin-bottom: 0;
 }
 
 .faq-answer a {
@@ -136,6 +135,7 @@
     text-underline-offset: 2px;
     transition: all 0.2s ease;
     color: inherit;
+    word-break: break-word;
 }
 
 .faq-answer a:hover,
@@ -152,6 +152,10 @@
     outline: 2px solid currentColor;
     outline-offset: 2px;
     border-radius: 2px;
+}
+
+.answer-content p:last-child {
+    margin-bottom: 0;
 }
 
 .view-full-post {
@@ -265,6 +269,6 @@
     }
 
     .faq-answer {
-        padding: 0 0.75rem 0.75rem;
+        padding: .75rem;
     }
 }
