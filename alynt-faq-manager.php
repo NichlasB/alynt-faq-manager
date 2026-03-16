@@ -6,6 +6,9 @@
  * Version: 1.0.5
  * Author: Alynt
  * Author URI: https://alynt.com
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * GitHub Plugin URI: NichlasB/alynt-faq-manager
  * Text Domain: alynt-faq
  * Domain Path: /languages
  * Requires at least: 5.0
@@ -17,26 +20,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Plugin Update Checker
-require_once __DIR__ . '/vendor/autoload.php';
-use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
-
-if (class_exists('YahnisElsts\PluginUpdateChecker\v5\PucFactory')) {
-    $myUpdateChecker = PucFactory::buildUpdateChecker(
-    'https://github.com/NichlasB/alynt-faq-manager',
-    __FILE__,
-    'alynt-faq-manager'
-);
-
-    // Set the branch that contains the stable release.
-    $myUpdateChecker->setBranch('main');
-    
-    // Optional: If you're using releases, you can set the checker to use them.
-    $myUpdateChecker->getVcsApi()->enableReleaseAssets();
-}
-
 /**
- * Check and update plugin version
+ * Check and update plugin version on each load.
+ *
+ * @since 1.0.0
+ *
+ * @return void
  */
 function alynt_faq_check_version() {
     $current_version = get_option('alynt_faq_version', '0');
@@ -62,10 +51,17 @@ if (!defined('ALYNT_FAQ_LOADED')) {
     define('ALYNT_FAQ_PLUGIN_URL', plugin_dir_url(__FILE__));
 
     // Include required files
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/post-types.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/admin-page.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/shortcodes.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/templates.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/shared/cache.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/post-type-registration.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/post-type-columns.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/capabilities.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/assets.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/reorder-page.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/custom-css-page.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend/collection-renderer.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend/shortcode.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/class-alynt-faq-template-loader.php';
+    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend/theme-hooks.php';
     require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend.php';
 
     // Register activation/deactivation hooks
@@ -73,7 +69,13 @@ if (!defined('ALYNT_FAQ_LOADED')) {
     register_deactivation_hook(__FILE__, 'alynt_faq_deactivate');
 
     /**
-     * Plugin activation callback
+     * Plugin activation callback.
+     *
+     * Runs on plugin activation: sets initial version option and flushes rewrite rules.
+     *
+     * @since 1.0.0
+     *
+     * @return void
      */
     function alynt_faq_activate() {
         // Create necessary database tables and options
@@ -84,7 +86,13 @@ if (!defined('ALYNT_FAQ_LOADED')) {
     }
 
     /**
-     * Plugin deactivation callback
+     * Plugin deactivation callback.
+     *
+     * Flushes rewrite rules on deactivation.
+     *
+     * @since 1.0.0
+     *
+     * @return void
      */
     function alynt_faq_deactivate() {
         // Cleanup temporary data if needed
@@ -92,7 +100,13 @@ if (!defined('ALYNT_FAQ_LOADED')) {
     }
 
     /**
-     * Add plugin action links
+     * Add plugin action links to the plugins list table.
+     *
+     * @since 1.0.0
+     *
+     * @param array $links Existing action links.
+     *
+     * @return array Modified action links with FAQs and Reorder entries prepended.
      */
     function alynt_faq_action_links($links) {
         $plugin_links = array(
@@ -104,12 +118,18 @@ if (!defined('ALYNT_FAQ_LOADED')) {
     add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'alynt_faq_action_links');
 
     /**
-     * Create plugin directory structure
+     * Create plugin directory structure if directories do not exist.
+     *
+     * @since 1.0.0
+     *
+     * @return void
      */
     function alynt_faq_create_plugin_structure() {
         $directories = array(
             ALYNT_FAQ_PLUGIN_DIR . 'includes',
             ALYNT_FAQ_PLUGIN_DIR . 'includes/admin',
+            ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend',
+            ALYNT_FAQ_PLUGIN_DIR . 'includes/shared',
             ALYNT_FAQ_PLUGIN_DIR . 'assets',
             ALYNT_FAQ_PLUGIN_DIR . 'assets/css',
             ALYNT_FAQ_PLUGIN_DIR . 'assets/js',
@@ -124,21 +144,12 @@ if (!defined('ALYNT_FAQ_LOADED')) {
     }
 
     /**
- * Enqueue archive styles only on FAQ archive page
- */
-    function alynt_faq_enqueue_archive_styles() {
-        if (is_post_type_archive('alynt_faq')) {
-            wp_enqueue_style(
-                'alynt-faq-archive',
-                ALYNT_FAQ_PLUGIN_URL . 'assets/css/archive-faq.css',
-                array(),
-                ALYNT_FAQ_VERSION
-            );
-        }
-    }
-    add_action('wp_enqueue_scripts', 'alynt_faq_enqueue_archive_styles');
-
-    // Initialize plugin
+     * Initialize the plugin.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     function alynt_faq_init() {
         alynt_faq_create_plugin_structure();
     }

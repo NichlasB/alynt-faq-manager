@@ -55,16 +55,21 @@ your-theme/alynt-faq/single-alynt_faq.php your-theme/alynt-faq/archive-alynt_faq
 
 Customize appearance using CSS variables:
 
+```css
 :root {
     --alynt-faq-icon-color: currentColor;
     --alynt-faq-border-color: #ddd;
     --alynt-faq-transition: all 0.3s ease;
 }
+```
 
 ## Developer Documentation
 
+See [docs/HOOKS.md](docs/HOOKS.md) for the full hook reference with parameter descriptions and examples.
+
 ### Actions
 
+```php
 // Before/After accordion
 do_action('alynt_faq_before_accordion');
 do_action('alynt_faq_after_accordion');
@@ -72,21 +77,50 @@ do_action('alynt_faq_after_accordion');
 // Before/After individual questions
 do_action('alynt_faq_before_question');
 do_action('alynt_faq_after_question');
+```
 
 ### Filters
 
+```php
 // Modify template location
 add_filter('alynt_faq_locate_template', 'your_function', 10, 2);
 
 // Modify shortcode attributes
 add_filter('alynt_faq_shortcode_atts', 'your_function', 10, 1);
 
-// Modify collection arguments
+// Modify collection query arguments
 add_filter('alynt_faq_collection_args', 'your_function', 10, 1);
 
 // Modify CSS classes
 add_filter('alynt_faq_question_classes', 'your_function', 10, 1);
 add_filter('alynt_faq_answer_classes', 'your_function', 10, 1);
+```
+
+## Settings
+
+The plugin adds two admin pages under the FAQs menu:
+
+- **Reorder FAQs** — Drag-and-drop interface for setting FAQ display order within each collection.
+- **Custom CSS** — In-browser CSS editor for styling the FAQ accordion. CSS is stored in the `alynt_faq_custom_css` database option and output in the front-end `<head>`.
+
+See [docs/SETTINGS.md](docs/SETTINGS.md) for a full reference of all database options.
+
+## FAQ
+
+**How do I display only one collection?**
+Use the `collection` attribute with the collection slug: `[alynt_faq collection="general-faq"]`
+
+**How do I display multiple specific collections?**
+Pass a comma-separated list of slugs: `[alynt_faq collection="general-faq,company-faq"]`
+
+**How do I override a template?**
+Copy the template file from the plugin's `/templates/` directory to `your-theme/alynt-faq/` and edit it there. The plugin checks the theme directory first before falling back to its own templates.
+
+**How do I change the FAQ sort order?**
+Use the `orderby` attribute (`menu_order`, `date`, or `abc`), or use **FAQs > Reorder FAQs** for drag-and-drop control when `orderby="menu_order"`.
+
+**How do I add custom CSS without editing theme files?**
+Go to **FAQs > Custom CSS** in the WordPress admin and enter your CSS there.
 
 ## Accessibility Features
 
@@ -124,32 +158,4 @@ This project is licensed under the GPL v2 or later - see the LICENSE file for de
 
 ## Changelog
 
-### 1.0.5
-- Updated WordPress compatibility to version 6.7.1
-- Removed compatibility warning messages
-- Improved plugin version reporting
-
-### 1.0.4
-- Included required dependencies in plugin distribution
-
-### 1.0.3
-- Updated PHP version requirement to 8.0+
-- Removed legacy Internet Explorer support
-- Added documentation for automatic updates
-- Updated installation instructions
-- Improved documentation clarity
-
-### 1.0.2
-- Added automatic update functionality via GitHub
-- Plugin can now check for and install updates directly from WordPress dashboard
-- Improved plugin version management
-
-### 1.0.0
-- Initial release with core features
-- Secure capability management system
-- Performance optimized caching
-- Full accessibility compliance
-- Mobile-first responsive design
-- Custom CSS editor
-- Collection management
-- FAQ reordering interface
+See [CHANGELOG.md](CHANGELOG.md) for the full version history.
