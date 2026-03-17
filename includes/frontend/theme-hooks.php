@@ -59,9 +59,9 @@ add_filter('body_class', 'alynt_faq_body_classes');
 function alynt_faq_register_sidebars() {
     if (current_theme_supports('widgets')) {
         register_sidebar(array(
-            'name'          => 'FAQ Sidebar',
+            'name'          => __('FAQ Sidebar', 'alynt-faq'),
             'id'            => 'alynt_faq_sidebar',
-            'description'   => 'Widgets in this area will be shown on FAQ pages.',
+            'description'   => __('Widgets in this area will be shown on FAQ pages.', 'alynt-faq'),
             'before_widget' => '<div id="%1$s" class="widget %2$s">',
             'after_widget'  => '</div>',
             'before_title'  => '<h2 class="widget-title">',

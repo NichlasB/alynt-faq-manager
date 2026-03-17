@@ -30,13 +30,13 @@ function alynt_faq_set_custom_columns($columns) {
     foreach ($columns as $key => $value) {
         if ($key === 'title') {
             $new_columns[$key] = $value;
-            $new_columns['collection'] = 'Collection';
-            $new_columns['order'] = 'Order';
+            $new_columns['collection'] = __('Collection', 'alynt-faq');
+            $new_columns['order'] = __('Order', 'alynt-faq');
         } else if ($key !== 'date') {
             $new_columns[$key] = $value;
         }
     }
-    $new_columns['date'] = 'Date';
+    $new_columns['date'] = __('Date', 'alynt-faq');
     return $new_columns;
 }
 
@@ -56,7 +56,7 @@ function alynt_faq_custom_column_content($column, $post_id) {
     switch ($column) {
         case 'collection':
             $terms = get_the_terms($post_id, 'alynt_faq_collection');
-            if (!empty($terms)) {
+            if ($terms && !is_wp_error($terms)) {
                 $term_names = array();
                 foreach ($terms as $term) {
                     $term_names[] = sprintf(
@@ -67,7 +67,7 @@ function alynt_faq_custom_column_content($column, $post_id) {
                 }
                 echo implode(', ', $term_names);
             } else {
-                echo '<span class="no-collection">No Collection</span>';
+                echo '<span class="no-collection">' . esc_html__('No Collection', 'alynt-faq') . '</span>';
             }
             break;
         case 'order':
@@ -107,7 +107,7 @@ function alynt_faq_add_taxonomy_filters() {
         $taxonomy = 'alynt_faq_collection';
         $selected = isset($_GET[$taxonomy]) ? $_GET[$taxonomy] : '';
         wp_dropdown_categories(array(
-            'show_option_all' => 'All Collections',
+            'show_option_all' => __('All Collections', 'alynt-faq'),
             'taxonomy'        => $taxonomy,
             'name'            => $taxonomy,
             'orderby'         => 'name',

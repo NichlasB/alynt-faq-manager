@@ -3,7 +3,7 @@
  * Plugin Name: Alynt FAQ Manager
  * Plugin URI: https://github.com/NichlasB/alynt-faq-manager
  * Description: A custom FAQ management system with collections, ordering, and responsive accordion display
- * Version: 1.0.5
+ * Version: 1.0.6
  * Author: Alynt
  * Author URI: https://alynt.com
  * License:           GPL v2 or later
@@ -21,6 +21,22 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Load plugin translation files.
+ *
+ * @since 1.0.6
+ *
+ * @return void
+ */
+function alynt_faq_load_textdomain() {
+    load_plugin_textdomain(
+        'alynt-faq',
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages/'
+    );
+}
+add_action('plugins_loaded', 'alynt_faq_load_textdomain');
+
+/**
  * Check and update plugin version on each load.
  *
  * @since 1.0.0
@@ -30,7 +46,17 @@ if (!defined('ABSPATH')) {
 function alynt_faq_check_version() {
     $current_version = get_option('alynt_faq_version', '0');
     if (version_compare($current_version, ALYNT_FAQ_VERSION, '<')) {
-        // Run upgrade routine if needed
+        if (function_exists('alynt_faq_create_plugin_structure')) {
+            alynt_faq_create_plugin_structure();
+        }
+
+        if (function_exists('alynt_faq_add_capabilities')) {
+            alynt_faq_add_capabilities();
+        }
+
+        if (function_exists('alynt_faq_change_default_term_name')) {
+            alynt_faq_change_default_term_name();
+        }
 
         // Update version in database
         update_option('alynt_faq_version', ALYNT_FAQ_VERSION);
@@ -39,30 +65,110 @@ function alynt_faq_check_version() {
         wp_cache_flush();
     }
 }
-add_action('plugins_loaded', 'alynt_faq_check_version');
+add_action('init', 'alynt_faq_check_version', 20);
 
 // Ensure no output has been sent before plugin initialization
 if (!defined('ALYNT_FAQ_LOADED')) {
     define('ALYNT_FAQ_LOADED', true);
     
     // Define plugin constants
-    define('ALYNT_FAQ_VERSION', '1.0.5');
+    define('ALYNT_FAQ_VERSION', '1.0.6');
     define('ALYNT_FAQ_PLUGIN_DIR', plugin_dir_path(__FILE__));
     define('ALYNT_FAQ_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-    // Include required files
+    function alynt_faq_get_unsafe_css_patterns() {
+        return array(
+            'expression',
+            'javascript:',
+            'behavior:',
+            '-moz-binding',
+            '@import',
+            'data:',
+        );
+    }
+
+    function alynt_faq_normalize_custom_css($custom_css) {
+        if (!is_string($custom_css)) {
+            return '';
+        }
+
+        $custom_css = wp_strip_all_tags($custom_css);
+        $custom_css = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $custom_css);
+
+        return is_string($custom_css) ? $custom_css : '';
+    }
+
+    function alynt_faq_has_unsafe_css_patterns($custom_css) {
+        if ('' === $custom_css) {
+            return false;
+        }
+
+        foreach (alynt_faq_get_unsafe_css_patterns() as $pattern) {
+            if (stripos($custom_css, $pattern) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function alynt_faq_get_custom_css_option_value() {
+        $custom_css = get_option('alynt_faq_custom_css', '');
+
+        if (is_string($custom_css)) {
+            return $custom_css;
+        }
+
+        if (null === $custom_css || false === $custom_css) {
+            return '';
+        }
+
+        if (is_scalar($custom_css)) {
+            return (string) $custom_css;
+        }
+
+        return '';
+    }
+
+    function alynt_faq_get_custom_css_version($custom_css = null) {
+        if (null === $custom_css) {
+            $custom_css = alynt_faq_get_custom_css_option_value();
+        }
+
+        return md5((string) $custom_css);
+    }
+
+    function alynt_faq_sanitize_custom_css($custom_css) {
+        $custom_css = alynt_faq_normalize_custom_css($custom_css);
+
+        if ('' === $custom_css) {
+            return '';
+        }
+
+        if (alynt_faq_has_unsafe_css_patterns($custom_css)) {
+            return '';
+        }
+
+        return $custom_css;
+    }
+
+    // Include required files (universal)
     require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/shared/cache.php';
     require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/post-type-registration.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/post-type-columns.php';
     require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/capabilities.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/assets.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/reorder-page.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/custom-css-page.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend/collection-renderer.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend/shortcode.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/class-alynt-faq-template-loader.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend/theme-hooks.php';
-    require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend.php';
+
+    if (is_admin()) {
+        require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/post-type-columns.php';
+        require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/assets.php';
+        require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/reorder-page.php';
+        require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/admin/custom-css-page.php';
+    } else {
+        require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend/collection-renderer.php';
+        require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend/shortcode.php';
+        require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/class-alynt-faq-template-loader.php';
+        require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend/theme-hooks.php';
+        require_once ALYNT_FAQ_PLUGIN_DIR . 'includes/frontend.php';
+    }
 
     // Register activation/deactivation hooks
     register_activation_hook(__FILE__, 'alynt_faq_activate');
@@ -78,8 +184,13 @@ if (!defined('ALYNT_FAQ_LOADED')) {
      * @return void
      */
     function alynt_faq_activate() {
-        // Create necessary database tables and options
-        add_option('alynt_faq_version', ALYNT_FAQ_VERSION);
+        alynt_faq_create_plugin_structure();
+        alynt_faq_register_post_type_and_taxonomy();
+        alynt_faq_change_default_term_name();
+        alynt_faq_add_capabilities();
+
+        // Create necessary database options
+        update_option('alynt_faq_version', ALYNT_FAQ_VERSION);
         
         // Flush rewrite rules
         flush_rewrite_rules();
@@ -110,8 +221,8 @@ if (!defined('ALYNT_FAQ_LOADED')) {
      */
     function alynt_faq_action_links($links) {
         $plugin_links = array(
-            '<a href="' . admin_url('edit.php?post_type=alynt_faq') . '">FAQs</a>',
-            '<a href="' . admin_url('admin.php?page=alynt-faq-order') . '">Reorder FAQs</a>'
+            '<a href="' . esc_url(admin_url('edit.php?post_type=alynt_faq')) . '">' . esc_html__('FAQs', 'alynt-faq') . '</a>',
+            '<a href="' . esc_url(admin_url('admin.php?page=alynt-faq-order')) . '">' . esc_html__('Reorder FAQs', 'alynt-faq') . '</a>'
         );
         return array_merge($plugin_links, $links);
     }
@@ -138,20 +249,10 @@ if (!defined('ALYNT_FAQ_LOADED')) {
 
         foreach ($directories as $directory) {
             if (!file_exists($directory)) {
-                wp_mkdir_p($directory);
+                if (!wp_mkdir_p($directory)) {
+                    error_log('[Alynt FAQ Manager] Failed to create plugin directory: ' . $directory);
+                }
             }
         }
     }
-
-    /**
-     * Initialize the plugin.
-     *
-     * @since 1.0.0
-     *
-     * @return void
-     */
-    function alynt_faq_init() {
-        alynt_faq_create_plugin_structure();
-    }
-    add_action('init', 'alynt_faq_init');
 }

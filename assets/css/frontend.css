@@ -20,12 +20,8 @@
 .alynt-faq-container {
     max-width: 1200px;
     margin: 2rem auto;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.alynt-faq-container.is-loaded {
     opacity: 1;
+    transition: opacity 0.3s ease;
 }
 
 .alynt-faq-collection {
@@ -139,7 +135,7 @@
 }
 
 .faq-answer a:hover,
-.faq-answer a:focus {
+.faq-answer a:focus:not(:focus-visible) {
     color: inherit;
     text-decoration-color: currentColor;
     text-decoration-thickness: 2px;
@@ -193,6 +189,14 @@
     color: inherit;
 }
 
+.faq-question:focus-visible,
+.collection-controls button:focus-visible,
+.view-full-post:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
 /* Columns Layout */
 @media (min-width: 1000px) {
     .alynt-faq-container.columns-2 {
@@ -203,11 +207,11 @@
 }
 
 /* Add this new animation approach instead */
-.faq-answer {
+.alynt-faq-container.is-loaded .faq-answer[aria-hidden="true"] {
     display: none;
 }
 
-.faq-answer[aria-hidden="false"] {
+.alynt-faq-container.is-loaded .faq-answer[aria-hidden="false"] {
     display: block;
     animation: slideDown 0.3s ease-out;
 }
@@ -220,6 +224,20 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .alynt-faq-container {
+        transition: none;
+    }
+    .faq-answer[aria-hidden="false"] {
+        animation: none;
+    }
+    .faq-question svg,
+    .faq-answer a,
+    .view-full-post {
+        transition: none;
     }
 }
 

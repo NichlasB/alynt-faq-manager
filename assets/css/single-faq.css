@@ -81,7 +81,7 @@
 }
 
 .alynt-faq-content a:hover,
-.alynt-faq-content a:focus {
+.alynt-faq-content a:focus:not(:focus-visible) {
     color: inherit;
     text-decoration-color: currentColor;
     text-decoration-thickness: 2px;
@@ -93,7 +93,6 @@
 .alynt-faq-content a:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 2px;
-    border-radius: 2px;
 }
 
 .alynt-faq-navigation {
@@ -183,5 +182,17 @@
 @media (max-width: 480px) {
     .alynt-faq-content {
         padding: 20px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .alynt-faq-nav-item {
+        transition: none;
+    }
+    .alynt-faq-nav-item:hover {
+        transform: none;
+    }
+    .alynt-faq-content a {
+        transition: none;
     }
 }

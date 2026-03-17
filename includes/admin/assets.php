@@ -49,11 +49,23 @@ function alynt_faq_admin_scripts($hook) {
     wp_localize_script('alynt-faq-admin', 'alyntFaqAdmin', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('alynt_faq_reorder'),
+        'collectionId' => isset($_GET['collection']) ? absint($_GET['collection']) : 0,
+        'requestTimeout' => 15000,
+        'unsafeCssPatterns' => alynt_faq_get_unsafe_css_patterns(),
         'messages' => array(
             'orderSaved' => __('FAQ order has been updated.', 'alynt-faq'),
+            'orderSaving' => __('Saving FAQ order...', 'alynt-faq'),
             'error' => __('An error occurred while saving the order.', 'alynt-faq'),
             'cssSaved' => __('Custom CSS saved successfully.', 'alynt-faq'),
-            'cssError' => __('Error saving custom CSS.', 'alynt-faq')
+            'cssError' => __('Error saving custom CSS.', 'alynt-faq'),
+            'cssSaving' => __('Saving CSS...', 'alynt-faq'),
+            'cssResetConfirm' => __('Are you sure you want to reset to default CSS? This will remove all custom CSS.', 'alynt-faq'),
+            'cssFormatError' => __('Please enter valid CSS rules that include both opening and closing braces.', 'alynt-faq'),
+            'cssUnsafeError' => __('Please remove unsafe CSS content and try again.', 'alynt-faq'),
+            'networkError' => __('Connection lost. Check your internet connection and try again.', 'alynt-faq'),
+            'timeoutError' => __('The request took too long. Please try again.', 'alynt-faq'),
+            'serverError' => __('The server could not complete the request. Please try again in a few minutes.', 'alynt-faq'),
+            'unsavedChanges' => __('You have unsaved CSS changes. If you leave now, your changes will be lost.', 'alynt-faq')
         )
     ));
 }

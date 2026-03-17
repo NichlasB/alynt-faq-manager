@@ -140,6 +140,29 @@
     background: #fff;
 }
 
+.notice-info {
+    border-left: 4px solid #72aee6;
+    background: #fff;
+}
+
+.alynt-faq-field-error {
+    color: #d63638;
+    margin: 8px 0 0;
+}
+
+.css-editor textarea[aria-invalid="true"] {
+    border-color: #d63638;
+    box-shadow: 0 0 0 1px #d63638;
+}
+
+.sortable-list.is-saving {
+    opacity: 0.65;
+}
+
+.faq-item.is-disabled {
+    cursor: wait;
+}
+
 /* Button Styles */
 #reset-css {
     margin-left: 10px;

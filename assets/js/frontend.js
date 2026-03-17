@@ -1,14 +1,28 @@
 jQuery(document).ready(function($) {
     const FAQ_SELECTORS = {
         container: '.alynt-faq-container',
-        question: '.faq-question',
-        answer: '.faq-answer',
-        expandAll: '.expand-all',
-        collapseAll: '.collapse-all'
+        question: '.alynt-faq-container .alynt-faq-question',
+        answer: '.alynt-faq-container .alynt-faq-answer',
+        expandAll: '.alynt-faq-container .alynt-faq-expand-all',
+        collapseAll: '.alynt-faq-container .alynt-faq-collapse-all'
+    };
+    const KEY_CODES = {
+        UP: 38,
+        DOWN: 40,
+        HOME: 36,
+        END: 35
     };
 
     function initLoadedState() {
-        $('.alynt-faq-container').addClass('is-loaded');
+        $(FAQ_SELECTORS.container).each(function() {
+            const $container = $(this);
+
+            $container.addClass('is-loaded');
+            $container.find(FAQ_SELECTORS.question).attr('aria-expanded', 'false');
+            $container.find(FAQ_SELECTORS.answer)
+            .attr('aria-hidden', 'true')
+            .prop('hidden', true);
+        });
     }
 
     function bindQuestionToggle() {
@@ -68,23 +82,23 @@ jQuery(document).ready(function($) {
             const index = $questions.index($current);
 
             switch (e.keyCode) {
-                case 38: // Up arrow
+                case KEY_CODES.UP: // Up arrow
                     e.preventDefault();
                     if (index > 0) {
                         $questions.eq(index - 1).focus();
                     }
                     break;
-                case 40: // Down arrow
+                case KEY_CODES.DOWN: // Down arrow
                     e.preventDefault();
                     if (index < $questions.length - 1) {
                         $questions.eq(index + 1).focus();
                     }
                     break;
-                case 36: // Home
+                case KEY_CODES.HOME: // Home
                     e.preventDefault();
                     $questions.first().focus();
                     break;
-                case 35: // End
+                case KEY_CODES.END: // End
                     e.preventDefault();
                     $questions.last().focus();
                     break;

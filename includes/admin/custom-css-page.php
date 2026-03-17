@@ -21,8 +21,8 @@ if (!defined('ABSPATH')) {
 function alynt_faq_add_custom_css_page() {
     add_submenu_page(
         'edit.php?post_type=alynt_faq',
-        'Custom CSS',
-        'Custom CSS',
+        __('Custom CSS', 'alynt-faq'),
+        __('Custom CSS', 'alynt-faq'),
         'manage_options',
         'alynt-faq-custom-css',
         'alynt_faq_render_custom_css_page'
@@ -32,6 +32,10 @@ add_action('admin_menu', 'alynt_faq_add_custom_css_page');
 
 // Add AJAX handler for custom CSS
 add_action('wp_ajax_alynt_faq_save_custom_css', 'alynt_faq_save_custom_css');
+
+function alynt_faq_get_max_custom_css_length() {
+    return 50000;
+}
 
 /**
  * Validate nonce, capability, and presence of CSS data in the AJAX request.
@@ -45,20 +49,22 @@ add_action('wp_ajax_alynt_faq_save_custom_css', 'alynt_faq_save_custom_css');
 function alynt_faq_validate_custom_css_request() {
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'alynt_faq_custom_css')) {
         wp_send_json_error(array(
-            'message' => __('Security check failed.', 'alynt-faq')
-        ));
+            'code' => 'session_expired',
+            'message' => __('Your session has expired. Please refresh the page and try again.', 'alynt-faq'),
+            'refresh' => true
+        ), 403);
     }
 
-    if (!current_user_can('edit_theme_options')) {
+    if (!current_user_can('manage_options')) {
         wp_send_json_error(array(
             'message' => __('You do not have permission to edit custom CSS.', 'alynt-faq')
-        ));
+        ), 403);
     }
 
-    if (!isset($_POST['css'])) {
+    if (!isset($_POST['css']) || is_array($_POST['css']) || is_object($_POST['css'])) {
         wp_send_json_error(array(
             'message' => __('No CSS content provided.', 'alynt-faq')
-        ));
+        ), 400);
     }
 }
 
@@ -72,7 +78,7 @@ function alynt_faq_validate_custom_css_request() {
  * @return string Sanitized CSS string.
  */
 function alynt_faq_get_sanitized_custom_css() {
-    return stripslashes(wp_strip_all_tags($_POST['css']));
+    return alynt_faq_normalize_custom_css(wp_unslash($_POST['css']));
 }
 
 /**
@@ -88,31 +94,28 @@ function alynt_faq_get_sanitized_custom_css() {
  * @return void
  */
 function alynt_faq_validate_custom_css_content($custom_css) {
-    if (empty($custom_css)) {
+    if ('' === trim($custom_css)) {
         return;
+    }
+
+    $custom_css_length = function_exists('mb_strlen') ? mb_strlen($custom_css) : strlen($custom_css);
+
+    if ($custom_css_length > alynt_faq_get_max_custom_css_length()) {
+        wp_send_json_error(array(
+            'message' => __('Custom CSS is too large to save. Please shorten it and try again.', 'alynt-faq')
+        ), 400);
     }
 
     if (strpos($custom_css, '{') === false || strpos($custom_css, '}') === false) {
         wp_send_json_error(array(
-            'message' => __('Invalid CSS format. CSS must contain valid rules with { } brackets.', 'alynt-faq')
-        ));
+            'message' => __('Please enter valid CSS rules that include both opening and closing braces.', 'alynt-faq')
+        ), 400);
     }
 
-    $harmful_patterns = array(
-        'expression',
-        'javascript:',
-        'behavior:',
-        '-moz-binding',
-        '@import',
-        'data:',
-    );
-
-    foreach ($harmful_patterns as $pattern) {
-        if (stripos($custom_css, $pattern) !== false) {
-            wp_send_json_error(array(
-                'message' => __('Invalid CSS content detected.', 'alynt-faq')
-            ));
-        }
+    if (alynt_faq_has_unsafe_css_patterns($custom_css)) {
+        wp_send_json_error(array(
+            'message' => __('Please remove unsafe CSS content and try again.', 'alynt-faq')
+        ), 400);
     }
 }
 
@@ -130,16 +133,44 @@ function alynt_faq_save_custom_css() {
 
     $custom_css = alynt_faq_get_sanitized_custom_css();
     alynt_faq_validate_custom_css_content($custom_css);
-    $result = update_option('alynt_faq_custom_css', $custom_css);
-    
-    if ($result === false) {
+    $existing_css = alynt_faq_get_custom_css_option_value();
+    $current_version = alynt_faq_get_custom_css_version($existing_css);
+    $submitted_version = isset($_POST['cssVersion']) ? sanitize_text_field(wp_unslash($_POST['cssVersion'])) : '';
+
+    if ('' === $submitted_version) {
         wp_send_json_error(array(
-            'message' => __('Failed to save CSS. Please try again.', 'alynt-faq')
+            'message' => __('The Custom CSS page is missing version data. Please refresh the page and try again.', 'alynt-faq'),
+            'refresh' => true
+        ), 400);
+    }
+
+    if ((string) $existing_css === (string) $custom_css) {
+        wp_send_json_success(array(
+            'message' => __('Custom CSS is already up to date.', 'alynt-faq'),
+            'cssVersion' => $current_version
         ));
     }
 
+    if (!hash_equals($current_version, $submitted_version)) {
+        wp_send_json_error(array(
+            'code' => 'concurrent_modification',
+            'message' => __('The custom CSS changed since you loaded this page. Copy your changes if needed, refresh the page, and try again.', 'alynt-faq'),
+            'refresh' => true
+        ), 409);
+    }
+
+    $result = update_option('alynt_faq_custom_css', $custom_css);
+    
+    if ($result === false) {
+        error_log('[Alynt FAQ Manager] Failed to save custom CSS option.');
+        wp_send_json_error(array(
+            'message' => __('Custom CSS could not be saved. Please try again. If the problem continues, contact an administrator.', 'alynt-faq')
+        ), 500);
+    }
+
     wp_send_json_success(array(
-        'message' => __('Custom CSS saved successfully.', 'alynt-faq')
+        'message' => __('Custom CSS saved successfully.', 'alynt-faq'),
+        'cssVersion' => alynt_faq_get_custom_css_version($custom_css)
     ));
 }
 
@@ -153,18 +184,18 @@ function alynt_faq_save_custom_css() {
 function alynt_faq_render_custom_css_documentation() {
     ?>
     <div class="css-documentation">
-        <h3>Available CSS Classes</h3>
+        <h2><?php esc_html_e('Available CSS Classes', 'alynt-faq'); ?></h2>
         <ul>
-            <li><code>.alynt-faq-collection</code> - Main container for FAQ collection</li>
-            <li><code>.faq-item</code> - Individual FAQ container</li>
-            <li><code>.faq-question</code> - Question button</li>
-            <li><code>.faq-answer</code> - Answer container</li>
-            <li><code>.icon-plus</code>, <code>.icon-minus</code> - Toggle icons</li>
-            <li><code>.question-text</code> - Question text</li>
-            <li><code>.answer-content</code> - Answer content</li>
+            <li><code>.alynt-faq-collection</code> - <?php esc_html_e('Main container for FAQ collection', 'alynt-faq'); ?></li>
+            <li><code>.faq-item</code> - <?php esc_html_e('Individual FAQ container', 'alynt-faq'); ?></li>
+            <li><code>.faq-question</code> - <?php esc_html_e('Question button', 'alynt-faq'); ?></li>
+            <li><code>.faq-answer</code> - <?php esc_html_e('Answer container', 'alynt-faq'); ?></li>
+            <li><code>.icon-plus</code>, <code>.icon-minus</code> - <?php esc_html_e('Toggle icons', 'alynt-faq'); ?></li>
+            <li><code>.question-text</code> - <?php esc_html_e('Question text', 'alynt-faq'); ?></li>
+            <li><code>.answer-content</code> - <?php esc_html_e('Answer content', 'alynt-faq'); ?></li>
         </ul>
         
-        <h4>Example:</h4>
+        <h3><?php esc_html_e('Example:', 'alynt-faq'); ?></h3>
         <pre>
             .faq-question {
                 color: #your-color;
@@ -190,16 +221,21 @@ function alynt_faq_render_custom_css_documentation() {
 function alynt_faq_render_custom_css_editor($custom_css) {
     ?>
     <div class="css-editor">
+        <label for="alynt_faq_custom_css" class="screen-reader-text"><?php esc_html_e('Custom CSS', 'alynt-faq'); ?></label>
         <textarea name="alynt_faq_custom_css" 
         id="alynt_faq_custom_css" 
         rows="20" 
         class="large-text code"
+        maxlength="<?php echo esc_attr(alynt_faq_get_max_custom_css_length()); ?>"
+        aria-describedby="alynt-faq-css-validation"
+        aria-invalid="false"
         style="font-family: monospace;"><?php echo esc_textarea($custom_css); ?></textarea>
+        <p id="alynt-faq-css-validation" class="alynt-faq-field-error" role="alert" style="display: none;"></p>
     </div>
 
     <p class="submit">
-        <?php submit_button('Save Custom CSS', 'primary', 'submit', false); ?>
-        <button type="button" class="button" id="reset-css">Reset to Default</button>
+        <?php submit_button(esc_html__('Save Custom CSS', 'alynt-faq'), 'primary', 'submit', false); ?>
+        <button type="button" class="button" id="reset-css"><?php esc_html_e('Reset to Default', 'alynt-faq'); ?></button>
     </p>
     <?php
 }
@@ -212,15 +248,25 @@ function alynt_faq_render_custom_css_editor($custom_css) {
  * @return void
  */
 function alynt_faq_render_custom_css_page() {
-    $custom_css = get_option('alynt_faq_custom_css', '');
+    if (!current_user_can('manage_options')) {
+        wp_die(
+            __('You do not have permission to manage custom CSS. Ask an administrator for access and try again.', 'alynt-faq'),
+            __('Permission denied', 'alynt-faq'),
+            array('response' => 403, 'back_link' => true)
+        );
+    }
+
+    $custom_css = alynt_faq_get_custom_css_option_value();
     ?>
     <div class="wrap">
-        <h1>FAQ Custom CSS</h1>
+        <h1><?php esc_html_e('FAQ Custom CSS', 'alynt-faq'); ?></h1>
         
         <div class="alynt-faq-css-container">
             <form method="post" action="" id="custom-css-form">
-                <div id="save-feedback" class="notice" style="display: none;"></div>
+                <div id="save-feedback" class="notice" role="status" style="display: none;"></div>
+                <div id="alynt-faq-announce" class="screen-reader-text" aria-live="polite" aria-atomic="true"></div>
                 <?php wp_nonce_field('alynt_faq_custom_css', 'alynt_faq_custom_css_nonce'); ?>
+                <input type="hidden" id="alynt_faq_custom_css_version" name="alynt_faq_custom_css_version" value="<?php echo esc_attr(alynt_faq_get_custom_css_version($custom_css)); ?>">
                 <?php alynt_faq_render_custom_css_documentation(); ?>
                 <?php alynt_faq_render_custom_css_editor($custom_css); ?>
             </form>

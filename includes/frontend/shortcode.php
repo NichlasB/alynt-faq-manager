@@ -13,17 +13,22 @@ if (!defined('ABSPATH')) {
 
 // Register shortcode
 add_shortcode('alynt_faq', 'alynt_faq_shortcode');
+add_action('wp_enqueue_scripts', 'alynt_faq_register_frontend_assets');
 
 /**
- * Enqueue the frontend FAQ stylesheet and JavaScript.
+ * Register the frontend FAQ stylesheet and JavaScript.
  *
- * @since 1.0.0
+ * Assets are registered early so they can be enqueued on demand when
+ * the [alynt_faq] shortcode is rendered, avoiding unnecessary loading
+ * on pages that do not use the shortcode.
+ *
+ * @since 1.0.6
  *
  * @return void
  */
-function alynt_faq_enqueue_frontend_assets() {
-    wp_enqueue_style('alynt-faq-style', ALYNT_FAQ_PLUGIN_URL . 'assets/css/frontend.css', array(), ALYNT_FAQ_VERSION);
-    wp_enqueue_script('alynt-faq-script', ALYNT_FAQ_PLUGIN_URL . 'assets/js/frontend.js', array('jquery'), ALYNT_FAQ_VERSION, true);
+function alynt_faq_register_frontend_assets() {
+    wp_register_style('alynt-faq-style', ALYNT_FAQ_PLUGIN_URL . 'assets/css/frontend.css', array(), ALYNT_FAQ_VERSION);
+    wp_register_script('alynt-faq-script', ALYNT_FAQ_PLUGIN_URL . 'assets/js/frontend.js', array('jquery'), ALYNT_FAQ_VERSION, true);
 }
 
 /**
@@ -39,18 +44,27 @@ function alynt_faq_enqueue_frontend_assets() {
  * @return array Normalized attribute array with keys: collection-columns, close-opened, collection, orderby.
  */
 function alynt_faq_normalize_shortcode_attributes($atts) {
-    $atts = shortcode_atts(array(
+    $defaults = array(
         'collection-columns' => '1',
         'close-opened' => 'no',
         'collection' => '',
         'orderby' => 'menu_order'
-    ), $atts, 'alynt_faq');
+    );
+
+    $atts = shortcode_atts($defaults, $atts, 'alynt_faq');
+    $atts = apply_filters('alynt_faq_shortcode_atts', $atts);
+
+    if (!is_array($atts)) {
+        $atts = array();
+    }
+
+    $atts = shortcode_atts($defaults, $atts, 'alynt_faq');
 
     $atts['collection-columns'] = min(max(absint($atts['collection-columns']), 1), 2);
     $atts['close-opened'] = $atts['close-opened'] === 'yes' ? 'yes' : 'no';
     $atts['orderby'] = in_array($atts['orderby'], array('date', 'abc', 'menu_order')) ? $atts['orderby'] : 'menu_order';
 
-    return apply_filters('alynt_faq_shortcode_atts', $atts);
+    return $atts;
 }
 
 /**
@@ -71,6 +85,17 @@ function alynt_faq_get_shortcode_container_classes($atts) {
 }
 
 /**
+ * Build the fallback "no FAQs found" message markup.
+ *
+ * @since 1.0.6
+ *
+ * @return string HTML markup for empty shortcode results.
+ */
+function alynt_faq_get_no_results_markup() {
+    return '<p class="alynt-faq-no-results">' . esc_html__('No FAQs found.', 'alynt-faq') . '</p>';
+}
+
+/**
  * Retrieve collection taxonomy terms matching the shortcode attribute, with transient caching.
  *
  * @since 1.0.0
@@ -80,20 +105,25 @@ function alynt_faq_get_shortcode_container_classes($atts) {
  * @return WP_Term[]|WP_Error Array of term objects, or WP_Error on failure.
  */
 function alynt_faq_get_collection_terms($atts) {
-    $cache_key = 'alynt_faq_collections_' . md5(serialize($atts));
-    $collection_terms = wp_cache_get($cache_key);
+    $cache_key = alynt_faq_get_collection_cache_key($atts);
+    $collection_terms = get_transient($cache_key);
 
     if (false !== $collection_terms) {
         return $collection_terms;
     }
 
     if (!empty($atts['collection'])) {
-        $collection_slugs = array_map('trim', explode(',', $atts['collection']));
-        $collection_terms = get_terms(array(
-            'taxonomy' => 'alynt_faq_collection',
-            'slug' => $collection_slugs,
-            'hide_empty' => true
-        ));
+        $collection_slugs = array_filter(array_map('sanitize_title', array_map('trim', explode(',', (string) $atts['collection']))));
+
+        if (empty($collection_slugs)) {
+            $collection_terms = array();
+        } else {
+            $collection_terms = get_terms(array(
+                'taxonomy' => 'alynt_faq_collection',
+                'slug' => $collection_slugs,
+                'hide_empty' => true
+            ));
+        }
     } else {
         $collection_terms = get_terms(array(
             'taxonomy' => 'alynt_faq_collection',
@@ -101,8 +131,10 @@ function alynt_faq_get_collection_terms($atts) {
         ));
     }
 
-    if (!is_wp_error($collection_terms)) {
-        wp_cache_set($cache_key, $collection_terms, '', HOUR_IN_SECONDS);
+    if (is_wp_error($collection_terms)) {
+        error_log('[Alynt FAQ Manager] Failed to load FAQ collections for shortcode: ' . $collection_terms->get_error_message());
+    } else {
+        set_transient($cache_key, $collection_terms, HOUR_IN_SECONDS);
     }
 
     return $collection_terms;
@@ -111,7 +143,7 @@ function alynt_faq_get_collection_terms($atts) {
 /**
  * Render the [alynt_faq] shortcode output.
  *
- * Enqueues frontend assets, resolves collections, and returns the full accordion HTML.
+ * Resolves collections and returns the full accordion HTML.
  *
  * @since 1.0.0
  *
@@ -120,22 +152,36 @@ function alynt_faq_get_collection_terms($atts) {
  * @return string The rendered shortcode HTML.
  */
 function alynt_faq_shortcode($atts) {
-    alynt_faq_enqueue_frontend_assets();
+    wp_enqueue_style('alynt-faq-style');
+    wp_enqueue_script('alynt-faq-script');
+
     $atts = alynt_faq_normalize_shortcode_attributes($atts);
     $collection_terms = alynt_faq_get_collection_terms($atts);
 
     ob_start();
 
-    echo '<a href="#faq-content" class="screen-reader-text">Skip to FAQ Content</a>';
-    echo '<style>.alynt-faq-container{opacity:0}</style>';
+    echo '<a href="#faq-content" class="screen-reader-text">' . esc_html__('Skip to FAQ Content', 'alynt-faq') . '</a>';
     echo '<div class="' . esc_attr(implode(' ', alynt_faq_get_shortcode_container_classes($atts))) . '" id="faq-content">';
 
-    if (!empty($collection_terms) && !is_wp_error($collection_terms)) {
+    if (is_wp_error($collection_terms)) {
+        echo '<p class="alynt-faq-no-results">' . esc_html__('FAQs could not be loaded right now. Please try again later.', 'alynt-faq') . '</p>';
+    } elseif (!empty($collection_terms)) {
+        $has_output = false;
+
         foreach ($collection_terms as $collection) {
-            echo alynt_faq_render_collection($collection, $atts['orderby']);
+            $collection_output = alynt_faq_render_collection($collection, $atts['orderby']);
+
+            if ('' !== $collection_output) {
+                $has_output = true;
+                echo $collection_output;
+            }
+        }
+
+        if (!$has_output) {
+            echo alynt_faq_get_no_results_markup();
         }
     } else {
-        echo '<p class="alynt-faq-no-results">No FAQs found.</p>';
+        echo alynt_faq_get_no_results_markup();
     }
 
     echo '</div>';
