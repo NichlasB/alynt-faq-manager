@@ -3,6 +3,10 @@
  * Single FAQ Template
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 get_header(); ?>
 
 <main class="alynt-faq-wrapper">
@@ -19,7 +23,7 @@ get_header(); ?>
                 </div>
             <?php endif; ?>
 
-            <h1 class="alynt-faq-title"><?php the_title(); ?></h1>
+            <h1 class="alynt-faq-title"><?php echo esc_html(get_the_title()); ?></h1>
             
             <div class="alynt-faq-meta">
                 <span class="alynt-faq-publish-date"><?php echo esc_html__('Published:', 'alynt-faq'); ?> <?php echo esc_html(get_the_date()); ?></span>

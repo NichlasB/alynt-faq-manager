@@ -453,7 +453,7 @@ function alynt_faq_clear_reorder_item_caches($items) {
  * @return void
  */
 function alynt_faq_update_order() {
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'alynt_faq_reorder')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'alynt_faq_reorder')) {
         wp_send_json_error(array(
             'code' => 'session_expired',
             'message' => __('Your session has expired. Please refresh the page and try again.', 'alynt-faq'),

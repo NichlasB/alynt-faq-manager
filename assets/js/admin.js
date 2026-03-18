@@ -43,7 +43,8 @@ jQuery(document).ready(function($) {
         $feedback
         .removeClass('notice-success notice-error notice-info')
         .addClass('notice notice-' + type)
-        .html('<p>' + message + '</p>');
+        .empty()
+        .append($('<p>').text(message));
 
         if (type === 'info') {
             $feedback.show();

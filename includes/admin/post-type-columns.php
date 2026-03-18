@@ -71,7 +71,7 @@ function alynt_faq_custom_column_content($column, $post_id) {
             }
             break;
         case 'order':
-            echo get_post_field('menu_order', $post_id);
+            echo esc_html(get_post_field('menu_order', $post_id));
             break;
     }
 }
@@ -105,7 +105,7 @@ function alynt_faq_add_taxonomy_filters() {
     global $typenow;
     if ($typenow === 'alynt_faq') {
         $taxonomy = 'alynt_faq_collection';
-        $selected = isset($_GET[$taxonomy]) ? $_GET[$taxonomy] : '';
+        $selected = isset($_GET[$taxonomy]) ? sanitize_text_field(wp_unslash($_GET[$taxonomy])) : '';
         wp_dropdown_categories(array(
             'show_option_all' => __('All Collections', 'alynt-faq'),
             'taxonomy'        => $taxonomy,
