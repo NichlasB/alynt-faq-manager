@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.7] - 2026-03-21
+
+### Fixed
+- Fixed custom CSS not applying on shortcode-rendered FAQ pages by adding `alynt_faq_attach_inline_custom_css()` helper function
+- Fixed accordion items remaining open on page load due to incorrect container-scoped CSS selectors in JavaScript
+- Ensured custom CSS is properly attached when the `[alynt_faq]` shortcode enqueues frontend styles
+
 ## [1.0.6] - 2026-03-20
 
 ### Changed

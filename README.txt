@@ -3,7 +3,7 @@ Contributors: Alynt
 Tags: faq, accordion, questions, answers, accessibility, responsive
 Requires at least: 5.0
 Tested up to: 6.7.1
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -100,6 +100,11 @@ The plugin automatically checks for new versions on GitHub. When an update is av
 
 == Changelog ==
 
+= 1.0.7 =
+* Fixed custom CSS not applying on shortcode-rendered FAQ pages
+* Fixed accordion items remaining open on page load due to incorrect CSS selectors
+* Added alynt_faq_attach_inline_custom_css() helper for reliable CSS attachment
+
 = 1.0.6 =
 * Synced release metadata and maintenance files with the current plugin version.
 * Refreshed GitHub release infrastructure for the updater-compatible distribution flow.
@@ -135,6 +140,9 @@ The plugin automatically checks for new versions on GitHub. When an update is av
 * FAQ reordering interface
 
 == Upgrade Notice ==
+
+= 1.0.7 =
+Bug fix release addressing custom CSS and accordion initialization issues. Recommended update for all users using shortcode display or custom styling.
 
 = 1.0.6 =
 Maintenance release with updated release metadata and GitHub release infrastructure. Update recommended for all users.
