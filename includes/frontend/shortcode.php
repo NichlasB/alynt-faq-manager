@@ -155,6 +155,10 @@ function alynt_faq_shortcode($atts) {
     wp_enqueue_style('alynt-faq-style');
     wp_enqueue_script('alynt-faq-script');
 
+    if (function_exists('alynt_faq_attach_inline_custom_css')) {
+        alynt_faq_attach_inline_custom_css('alynt-faq-style');
+    }
+
     $atts = alynt_faq_normalize_shortcode_attributes($atts);
     $collection_terms = alynt_faq_get_collection_terms($atts);
 

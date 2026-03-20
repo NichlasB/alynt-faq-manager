@@ -1,10 +1,10 @@
 jQuery(document).ready(function($) {
     const FAQ_SELECTORS = {
         container: '.alynt-faq-container',
-        question: '.alynt-faq-container .alynt-faq-question',
-        answer: '.alynt-faq-container .alynt-faq-answer',
-        expandAll: '.alynt-faq-container .alynt-faq-expand-all',
-        collapseAll: '.alynt-faq-container .alynt-faq-collapse-all'
+        question: '.alynt-faq-question',
+        answer: '.alynt-faq-answer',
+        expandAll: '.alynt-faq-expand-all',
+        collapseAll: '.alynt-faq-collapse-all'
     };
     const KEY_CODES = {
         UP: 38,
