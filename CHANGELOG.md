@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.0] - 2026-03-22
+
+### Changed
+- Removed yahnis-elsts/plugin-update-checker Composer dependency
+- Added npm-based build tooling with esbuild
+- Added GitHub Actions workflow for automated releases
+- Added PHP CodeSniffer configuration (.phpcs.xml)
+- Added PHPUnit test infrastructure (phpunit.xml, tests/)
+- Added .editorconfig for coding standards
+- Standardized file naming (snake_case to kebab-case for templates)
+
+### Added
+- package.json with build scripts
+- deploy.sh script for plugin deployment
+- scripts/build.mjs for asset compilation
+- assets/src/ directory structure for modern JS
+
 ## [1.0.7] - 2026-03-21
 
 ### Fixed

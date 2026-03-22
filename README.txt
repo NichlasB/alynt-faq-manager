@@ -3,7 +3,7 @@ Contributors: Alynt
 Tags: faq, accordion, questions, answers, accessibility, responsive
 Requires at least: 5.0
 Tested up to: 6.7.1
-Stable tag: 1.0.7
+Stable tag: 1.1.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -99,6 +99,14 @@ Yes, the plugin implements multiple security measures:
 The plugin automatically checks for new versions on GitHub. When an update is available, WordPress will notify you just like with any other plugin update. You can update directly through the WordPress dashboard with a single click.
 
 == Changelog ==
+
+= 1.1.0 =
+* Removed plugin-update-checker Composer dependency
+* Added npm-based build tooling with esbuild
+* Added GitHub Actions workflow for automated releases
+* Added PHP CodeSniffer configuration
+* Added PHPUnit test infrastructure
+* Standardized file naming (snake_case to kebab-case)
 
 = 1.0.7 =
 * Fixed custom CSS not applying on shortcode-rendered FAQ pages
