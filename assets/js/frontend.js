@@ -75,30 +75,30 @@ jQuery(document).ready(function($) {
     }
 
     function bindKeyboardNavigation() {
-        // Keyboard navigation
         $(document).on('keydown', FAQ_SELECTORS.question, function(e) {
             const $current = $(this);
-            const $questions = $(FAQ_SELECTORS.question);
+            const $container = $current.closest('.alynt-faq-collection');
+            const $questions = $container.length ? $container.find(FAQ_SELECTORS.question) : $(FAQ_SELECTORS.question);
             const index = $questions.index($current);
 
             switch (e.keyCode) {
-                case KEY_CODES.UP: // Up arrow
+                case KEY_CODES.UP:
                     e.preventDefault();
                     if (index > 0) {
                         $questions.eq(index - 1).focus();
                     }
                     break;
-                case KEY_CODES.DOWN: // Down arrow
+                case KEY_CODES.DOWN:
                     e.preventDefault();
                     if (index < $questions.length - 1) {
                         $questions.eq(index + 1).focus();
                     }
                     break;
-                case KEY_CODES.HOME: // Home
+                case KEY_CODES.HOME:
                     e.preventDefault();
                     $questions.first().focus();
                     break;
-                case KEY_CODES.END: // End
+                case KEY_CODES.END:
                     e.preventDefault();
                     $questions.last().focus();
                     break;

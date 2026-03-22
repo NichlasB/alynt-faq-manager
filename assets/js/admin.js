@@ -35,26 +35,37 @@ jQuery(document).ready(function($) {
     function showFeedback(message, type) {
         var $feedback = $('#save-feedback');
         if (!$feedback.length) {
-            $feedback = $('<div id="save-feedback" class="notice" role="status" style="display: none;"></div>');
-            $('.wrap').prepend($feedback);
+            $feedback = $('<div id="save-feedback" class="notice" role="status" tabindex="-1" style="display: none;"></div>');
+            $('.wrap').find('h1').first().after($feedback);
         }
+
+        var isAssertive = type === 'error';
 
         $feedback.stop(true, true);
         $feedback
-        .removeClass('notice-success notice-error notice-info')
+        .removeClass('notice-success notice-error notice-info is-dismissible')
         .addClass('notice notice-' + type)
         .empty()
         .append($('<p>').text(message));
 
-        if (type === 'info') {
-            $feedback.show();
-        } else {
-            $feedback.fadeIn().delay(3000).fadeOut();
+        if (type !== 'info') {
+            $feedback.addClass('is-dismissible');
         }
 
+        $feedback.show();
+
         var $announce = $('#alynt-faq-announce');
-        $announce.attr('aria-live', type === 'error' ? 'assertive' : 'polite');
-        $announce.text(message);
+        $announce.attr('aria-live', isAssertive ? 'assertive' : 'polite');
+        $announce.text('');
+        window.setTimeout(function() {
+            $announce.text(message);
+        }, 20);
+
+        if (type === 'error' || type === 'success') {
+            window.setTimeout(function() {
+                $feedback.trigger('focus');
+            }, 20);
+        }
     }
 
     function getResponseMessage(response, fallback) {
@@ -177,6 +188,27 @@ jQuery(document).ready(function($) {
         } else {
             $customCssForm.find('button, input[type="submit"]').removeAttr('aria-disabled');
         }
+    }
+
+    function openResetConfirmation() {
+        var $confirmation = $('#alynt-faq-reset-confirmation');
+        if (!$confirmation.length) {
+            return;
+        }
+
+        $confirmation.prop('hidden', false);
+        $('#reset-css').attr('aria-expanded', 'true');
+        $('#cancel-reset-css').trigger('focus');
+    }
+
+    function closeResetConfirmation() {
+        var $confirmation = $('#alynt-faq-reset-confirmation');
+        if (!$confirmation.length) {
+            return;
+        }
+
+        $confirmation.prop('hidden', true);
+        $('#reset-css').attr('aria-expanded', 'false').trigger('focus');
     }
 
     function updateOrder() {
@@ -333,15 +365,23 @@ jQuery(document).ready(function($) {
     }
 
     function initResetButton() {
-        // Handle Reset CSS button
         $('#reset-css').on('click', function(e) {
             e.preventDefault();
-            if (confirm(alyntFaqAdmin.messages.cssResetConfirm)) {
-                $customCssField.val('');
-                $customCssField.trigger('input');
-                clearCssValidation();
-                $customCssForm.trigger('submit');
-            }
+            openResetConfirmation();
+        });
+
+        $('#cancel-reset-css').on('click', function(e) {
+            e.preventDefault();
+            closeResetConfirmation();
+        });
+
+        $('#confirm-reset-css').on('click', function(e) {
+            e.preventDefault();
+            closeResetConfirmation();
+            $customCssField.val('');
+            $customCssField.trigger('input');
+            clearCssValidation();
+            $customCssForm.trigger('submit');
         });
     }
 

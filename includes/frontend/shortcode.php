@@ -7,13 +7,13 @@
  * @since      1.0.0
  */
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-// Register shortcode
-add_shortcode('alynt_faq', 'alynt_faq_shortcode');
-add_action('wp_enqueue_scripts', 'alynt_faq_register_frontend_assets');
+// Register shortcode.
+add_shortcode( 'alynt_faq', 'alynt_faq_shortcode' );
+add_action( 'wp_enqueue_scripts', 'alynt_faq_register_frontend_assets' );
 
 /**
  * Register the frontend FAQ stylesheet and JavaScript.
@@ -27,8 +27,8 @@ add_action('wp_enqueue_scripts', 'alynt_faq_register_frontend_assets');
  * @return void
  */
 function alynt_faq_register_frontend_assets() {
-    wp_register_style('alynt-faq-style', ALYNT_FAQ_PLUGIN_URL . 'assets/css/frontend.css', array(), ALYNT_FAQ_VERSION);
-    wp_register_script('alynt-faq-script', ALYNT_FAQ_PLUGIN_URL . 'assets/js/frontend.js', array('jquery'), ALYNT_FAQ_VERSION, true);
+	wp_register_style( 'alynt-faq-style', ALYNT_FAQ_PLUGIN_URL . 'assets/css/frontend.css', array(), ALYNT_FAQ_VERSION );
+	wp_register_script( 'alynt-faq-script', ALYNT_FAQ_PLUGIN_URL . 'assets/js/frontend.js', array( 'jquery' ), ALYNT_FAQ_VERSION, true );
 }
 
 /**
@@ -43,28 +43,28 @@ function alynt_faq_register_frontend_assets() {
  *
  * @return array Normalized attribute array with keys: collection-columns, close-opened, collection, orderby.
  */
-function alynt_faq_normalize_shortcode_attributes($atts) {
-    $defaults = array(
-        'collection-columns' => '1',
-        'close-opened' => 'no',
-        'collection' => '',
-        'orderby' => 'menu_order'
-    );
+function alynt_faq_normalize_shortcode_attributes( $atts ) {
+	$defaults = array(
+		'collection-columns' => '1',
+		'close-opened'       => 'no',
+		'collection'         => '',
+		'orderby'            => 'menu_order',
+	);
 
-    $atts = shortcode_atts($defaults, $atts, 'alynt_faq');
-    $atts = apply_filters('alynt_faq_shortcode_atts', $atts);
+	$atts = shortcode_atts( $defaults, $atts, 'alynt_faq' );
+	$atts = apply_filters( 'alynt_faq_shortcode_atts', $atts );
 
-    if (!is_array($atts)) {
-        $atts = array();
-    }
+	if ( ! is_array( $atts ) ) {
+		$atts = array();
+	}
 
-    $atts = shortcode_atts($defaults, $atts, 'alynt_faq');
+	$atts = shortcode_atts( $defaults, $atts, 'alynt_faq' );
 
-    $atts['collection-columns'] = min(max(absint($atts['collection-columns']), 1), 2);
-    $atts['close-opened'] = $atts['close-opened'] === 'yes' ? 'yes' : 'no';
-    $atts['orderby'] = in_array($atts['orderby'], array('date', 'abc', 'menu_order')) ? $atts['orderby'] : 'menu_order';
+	$atts['collection-columns'] = min( max( absint( $atts['collection-columns'] ), 1 ), 2 );
+	$atts['close-opened']       = $atts['close-opened'] === 'yes' ? 'yes' : 'no';
+	$atts['orderby']            = in_array( $atts['orderby'], array( 'date', 'abc', 'menu_order' ), true ) ? $atts['orderby'] : 'menu_order';
 
-    return $atts;
+	return $atts;
 }
 
 /**
@@ -76,12 +76,12 @@ function alynt_faq_normalize_shortcode_attributes($atts) {
  *
  * @return string[] Array of CSS class names.
  */
-function alynt_faq_get_shortcode_container_classes($atts) {
-    return array(
-        'alynt-faq-container',
-        'columns-' . $atts['collection-columns'],
-        'close-opened-' . $atts['close-opened']
-    );
+function alynt_faq_get_shortcode_container_classes( $atts ) {
+	return array(
+		'alynt-faq-container',
+		'columns-' . $atts['collection-columns'],
+		'close-opened-' . $atts['close-opened'],
+	);
 }
 
 /**
@@ -92,7 +92,11 @@ function alynt_faq_get_shortcode_container_classes($atts) {
  * @return string HTML markup for empty shortcode results.
  */
 function alynt_faq_get_no_results_markup() {
-    return '<p class="alynt-faq-no-results">' . esc_html__('No FAQs found.', 'alynt-faq') . '</p>';
+	return sprintf(
+		'<div class="alynt-faq-empty-state"><h2>%1$s</h2><p>%2$s</p></div>',
+		esc_html__( 'No FAQs Yet', 'alynt-faq' ),
+		esc_html__( 'FAQs will appear here after they are added to a collection and published.', 'alynt-faq' )
+	);
 }
 
 /**
@@ -104,40 +108,44 @@ function alynt_faq_get_no_results_markup() {
  *
  * @return WP_Term[]|WP_Error Array of term objects, or WP_Error on failure.
  */
-function alynt_faq_get_collection_terms($atts) {
-    $cache_key = alynt_faq_get_collection_cache_key($atts);
-    $collection_terms = get_transient($cache_key);
+function alynt_faq_get_collection_terms( $atts ) {
+	$cache_key        = alynt_faq_get_collection_cache_key( $atts );
+	$collection_terms = get_transient( $cache_key );
 
-    if (false !== $collection_terms) {
-        return $collection_terms;
-    }
+	if ( false !== $collection_terms ) {
+		return $collection_terms;
+	}
 
-    if (!empty($atts['collection'])) {
-        $collection_slugs = array_filter(array_map('sanitize_title', array_map('trim', explode(',', (string) $atts['collection']))));
+	if ( ! empty( $atts['collection'] ) ) {
+		$collection_slugs = array_filter( array_map( 'sanitize_title', array_map( 'trim', explode( ',', (string) $atts['collection'] ) ) ) );
 
-        if (empty($collection_slugs)) {
-            $collection_terms = array();
-        } else {
-            $collection_terms = get_terms(array(
-                'taxonomy' => 'alynt_faq_collection',
-                'slug' => $collection_slugs,
-                'hide_empty' => true
-            ));
-        }
-    } else {
-        $collection_terms = get_terms(array(
-            'taxonomy' => 'alynt_faq_collection',
-            'hide_empty' => true
-        ));
-    }
+		if ( empty( $collection_slugs ) ) {
+			$collection_terms = array();
+		} else {
+			$collection_terms = get_terms(
+				array(
+					'taxonomy'   => 'alynt_faq_collection',
+					'slug'       => $collection_slugs,
+					'hide_empty' => true,
+				)
+			);
+		}
+	} else {
+		$collection_terms = get_terms(
+			array(
+				'taxonomy'   => 'alynt_faq_collection',
+				'hide_empty' => true,
+			)
+		);
+	}
 
-    if (is_wp_error($collection_terms)) {
-        error_log('[Alynt FAQ Manager] Failed to load FAQ collections for shortcode: ' . $collection_terms->get_error_message());
-    } else {
-        set_transient($cache_key, $collection_terms, HOUR_IN_SECONDS);
-    }
+	if ( is_wp_error( $collection_terms ) ) {
+		return $collection_terms;
+	} else {
+		set_transient( $cache_key, $collection_terms, HOUR_IN_SECONDS );
+	}
 
-    return $collection_terms;
+	return $collection_terms;
 }
 
 /**
@@ -151,44 +159,44 @@ function alynt_faq_get_collection_terms($atts) {
  *
  * @return string The rendered shortcode HTML.
  */
-function alynt_faq_shortcode($atts) {
-    wp_enqueue_style('alynt-faq-style');
-    wp_enqueue_script('alynt-faq-script');
+function alynt_faq_shortcode( $atts ) {
+	wp_enqueue_style( 'alynt-faq-style' );
+	wp_enqueue_script( 'alynt-faq-script' );
 
-    if (function_exists('alynt_faq_attach_inline_custom_css')) {
-        alynt_faq_attach_inline_custom_css('alynt-faq-style');
-    }
+	if ( function_exists( 'alynt_faq_attach_inline_custom_css' ) ) {
+		alynt_faq_attach_inline_custom_css( 'alynt-faq-style' );
+	}
 
-    $atts = alynt_faq_normalize_shortcode_attributes($atts);
-    $collection_terms = alynt_faq_get_collection_terms($atts);
+	$atts             = alynt_faq_normalize_shortcode_attributes( $atts );
+	$collection_terms = alynt_faq_get_collection_terms( $atts );
 
-    ob_start();
+	ob_start();
 
-    echo '<a href="#faq-content" class="screen-reader-text">' . esc_html__('Skip to FAQ Content', 'alynt-faq') . '</a>';
-    echo '<div class="' . esc_attr(implode(' ', alynt_faq_get_shortcode_container_classes($atts))) . '" id="faq-content">';
+	echo '<a href="#faq-content" class="screen-reader-text">' . esc_html__( 'Skip to FAQ Content', 'alynt-faq' ) . '</a>';
+	echo '<div class="' . esc_attr( implode( ' ', alynt_faq_get_shortcode_container_classes( $atts ) ) ) . '" id="faq-content">';
 
-    if (is_wp_error($collection_terms)) {
-        echo '<p class="alynt-faq-no-results">' . esc_html__('FAQs could not be loaded right now. Please try again later.', 'alynt-faq') . '</p>';
-    } elseif (!empty($collection_terms)) {
-        $has_output = false;
+	if ( is_wp_error( $collection_terms ) ) {
+		echo '<p class="alynt-faq-no-results">' . esc_html__( 'FAQs could not be loaded right now. Please try again later.', 'alynt-faq' ) . '</p>';
+	} elseif ( ! empty( $collection_terms ) ) {
+		$has_output = false;
 
-        foreach ($collection_terms as $collection) {
-            $collection_output = alynt_faq_render_collection($collection, $atts['orderby']);
+		foreach ( $collection_terms as $collection ) {
+			$collection_output = alynt_faq_render_collection( $collection, $atts['orderby'] );
 
-            if ('' !== $collection_output) {
-                $has_output = true;
-                echo $collection_output;
-            }
-        }
+			if ( '' !== $collection_output ) {
+				$has_output = true;
+				echo wp_kses_post( $collection_output );
+			}
+		}
 
-        if (!$has_output) {
-            echo alynt_faq_get_no_results_markup();
-        }
-    } else {
-        echo alynt_faq_get_no_results_markup();
-    }
+		if ( ! $has_output ) {
+			echo wp_kses_post( alynt_faq_get_no_results_markup() );
+		}
+	} else {
+		echo wp_kses_post( alynt_faq_get_no_results_markup() );
+	}
 
-    echo '</div>';
+	echo '</div>';
 
-    return ob_get_clean();
+	return ob_get_clean();
 }

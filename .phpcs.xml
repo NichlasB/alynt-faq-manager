@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ruleset name="WordPress Plugin Standard">
+    <rule ref="WordPress">
+        <exclude name="WordPress.PHP.YodaConditions.NotYoda" />
+        <properties>
+            <property name="custom_capabilities" type="array">
+                <element value="edit_alynt_faq" />
+                <element value="read_alynt_faq" />
+                <element value="delete_alynt_faq" />
+                <element value="edit_alynt_faqs" />
+                <element value="edit_others_alynt_faqs" />
+                <element value="publish_alynt_faqs" />
+                <element value="read_private_alynt_faqs" />
+                <element value="delete_alynt_faqs" />
+                <element value="delete_private_alynt_faqs" />
+                <element value="delete_published_alynt_faqs" />
+                <element value="delete_others_alynt_faqs" />
+                <element value="edit_private_alynt_faqs" />
+                <element value="edit_published_alynt_faqs" />
+            </property>
+        </properties>
+    </rule>
+
+    <exclude-pattern>/vendor/</exclude-pattern>
+    <exclude-pattern>/node_modules/</exclude-pattern>
+    <exclude-pattern>/tests/</exclude-pattern>
+    <exclude-pattern>/assets/dist/</exclude-pattern>
+
+    <arg name="extensions" value="php" />
+    <arg value="p" />
+</ruleset>

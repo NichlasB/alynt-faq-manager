@@ -50,8 +50,10 @@ wp-config.php
 # Plugin repository maintenance
 /build/
 /node_modules/
+/vendor/
 /assets/dist/
 *.map
 composer.phar
 .env
 .env.*
+coverage/

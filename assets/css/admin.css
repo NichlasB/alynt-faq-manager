@@ -168,6 +168,27 @@
     margin-left: 10px;
 }
 
+.alynt-faq-inline-confirmation {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-left: 4px solid #d63638;
+    border-radius: 4px;
+}
+
+.alynt-faq-inline-confirmation p {
+    margin: 0 0 12px;
+}
+
+.alynt-faq-inline-confirmation p:last-child {
+    margin-bottom: 0;
+}
+
+.alynt-faq-inline-confirmation .button-link-delete {
+    margin-right: 12px;
+}
+
 .alynt-faq-css-container {
     margin-top: 20px;
 }
