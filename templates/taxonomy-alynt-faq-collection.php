@@ -31,7 +31,7 @@ $collection = get_queried_object();
 			$collection_output = alynt_faq_render_collection( $collection, 'menu_order' );
 
 			if ( '' !== $collection_output ) {
-				echo wp_kses_post( $collection_output );
+				echo $collection_output;
 			} else {
 				echo '<div class="alynt-faq-empty-state"><h2>' . esc_html__( 'No FAQs in This Collection', 'alynt-faq' ) . '</h2><p>' . esc_html__( 'This collection does not have any published FAQs yet.', 'alynt-faq' ) . '</p></div>';
 			}

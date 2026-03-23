@@ -185,7 +185,7 @@ function alynt_faq_shortcode( $atts ) {
 
 			if ( '' !== $collection_output ) {
 				$has_output = true;
-				echo wp_kses_post( $collection_output );
+				echo $collection_output;
 			}
 		}
 
