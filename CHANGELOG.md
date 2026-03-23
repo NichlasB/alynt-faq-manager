@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.1] - 2026-03-23
+
+### Changed
+- Removed wp_kses_post() wrapper from FAQ collection output in shortcode and taxonomy templates for more flexible content rendering
+
 ## [1.1.0] - 2026-03-22
 
 ### Changed

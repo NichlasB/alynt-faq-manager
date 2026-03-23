@@ -3,7 +3,7 @@ Contributors: Alynt
 Tags: faq, accordion, questions, answers, accessibility, responsive
 Requires at least: 5.0
 Tested up to: 6.7.1
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -99,6 +99,9 @@ Yes, the plugin implements multiple security measures:
 The plugin automatically checks for new versions on GitHub. When an update is available, WordPress will notify you just like with any other plugin update. You can update directly through the WordPress dashboard with a single click.
 
 == Changelog ==
+
+= 1.1.1 =
+* Removed wp_kses_post() wrapper from FAQ collection output in shortcode and taxonomy templates
 
 = 1.1.0 =
 * Removed plugin-update-checker Composer dependency
