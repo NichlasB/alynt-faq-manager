@@ -57,3 +57,7 @@ composer.phar
 .env
 .env.*
 coverage/
+
+# Local-only workflow files
+deploy.sh
+session-context.tmp.md
